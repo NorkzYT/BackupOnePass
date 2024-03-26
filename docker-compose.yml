@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  backuponepass:
+    build:
+      context: docker
+    container_name: backuponepass
+    environment:
+      - USER=${BACKUP_ONE_PASS_USER:?error}
+      - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
+      - GID=${BACKUP_ONE_PASS_GID:?error}
+      - UID=${BACKUP_ONE_PASS_UID:?error}
+      - TZ=${BACKUP_ONE_PASS_TZ:?error}
+      - CRON_SCHEDULE=${BACKUP_ONE_PASS_CRON_SCHEDULE:?error}
+    ports:
+      - "10022:22" # SSH access
+      - "14000:4000" # Remote desktop access
+    volumes:
+      - /dev/shm:/dev/shm # Shared memory
+      - ./docker/data:/backuponepass/data
+    cap_add:
+      - SYS_PTRACE
+    shm_size: "8gb"
+    restart: on-failure
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    driver: bridge
+    external: true
