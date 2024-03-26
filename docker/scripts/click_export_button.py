@@ -57,9 +57,9 @@ if __name__ == "__main__":
     print("Starting the process to find and click the export button...")
 
     # The path to the template images
-    BUTTON_TEMPLATE_PATH = "/docker/images/button_template.png"
+    BUTTON_TEMPLATE_PATH = "/backuponepass/images/button_template.png"
     EXPORT_BUTTON_TEMPLATE_PATH = (
-        "/docker/images/export_button_template.png"
+        "/backuponepass/images/export_button_template.png"
     )
 
     # Define the horizontal offset to click to the right of the Export button

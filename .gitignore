@@ -33,4 +33,4 @@ yarn-error.log*
 *.out
 
 # Export Data
-Data
+docker/data

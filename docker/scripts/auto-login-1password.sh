@@ -46,14 +46,14 @@ if [ -n "$FIRST_STARTUP" ]; then
 
     echo "Typing in account details..."
     sleep 2
-    xdotool type "$UBUNTU_DESKTOP_ONEPASSWORD_EMAIL"
+    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_EMAIL"
     xdotool key Tab
     sleep 1
-    xdotool type "$UBUNTU_DESKTOP_ONEPASSWORD_SECRET_KEY"
+    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_SECRET_KEY"
     xdotool key Tab
     xdotool key Tab
     sleep 1
-    xdotool type "$UBUNTU_DESKTOP_ONEPASSWORD_PASSWORD"
+    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
     xdotool key Tab
     xdotool key Tab
     sleep 1
@@ -75,7 +75,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     xdotool windowactivate "$LOCK_SCREEN_WINDOW_ID"
     sleep 1
     echo "Typing the password for subsequent login..."
-    xdotool type "$UBUNTU_DESKTOP_ONEPASSWORD_PASSWORD"
+    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
     sleep 1
     xdotool key Return
 

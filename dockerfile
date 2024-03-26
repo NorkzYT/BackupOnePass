@@ -31,35 +31,6 @@ COPY docker/images /backuponepass/images
 RUN chmod +x /backuponepass/config/*.sh && \
     chmod +x /backuponepass/scripts/*.sh
 
-## Install and Configure OpenGL
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libxau6 libxdmcp6 libxcb1 libxext6 libx11-6 \
-    libglvnd0 libgl1 libglx0 libegl1 libgles2 \
-    libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /usr/share/glvnd/egl_vendor.d/ && \
-    echo "{\n\
-    \"file_format_version\" : \"1.0.0\",\n\
-    \"ICD\": {\n\
-    \"library_path\": \"libEGL_nvidia.so.0\"\n\
-    }\n\
-    }" > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-
-## Install and Configure for Vulkan
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends vulkan-tools && \
-    rm -rf /var/lib/apt/lists/* && \
-    VULKAN_API_VERSION=$(dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9]+(\.[0-9]+)(\.[0-9]+)') && \
-    mkdir -p /etc/vulkan/icd.d/ && \
-    echo "{\n\
-    \"file_format_version\" : \"1.0.0\",\n\
-    \"ICD\": {\n\
-    \"library_path\": \"libGLX_nvidia.so.0\",\n\
-    \"api_version\" : \"${VULKAN_API_VERSION}\"\n\
-    }\n\
-    }" > /etc/vulkan/icd.d/nvidia_icd.json
-
 ## Install some common tools 
 RUN apt-get update && \
     apt-get install -y sudo vim gedit locales wget curl tar git gnupg2 lsb-release net-tools iputils-ping mesa-utils xdotool oathtool xvfb \

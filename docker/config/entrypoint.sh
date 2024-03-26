@@ -13,7 +13,7 @@ if [ ! -f "/backuponepass/config/init_flag" ]; then
     mkdir -p /backuponepass/scripts
     mkdir -p /backuponepass/images
     chown "$USER":"$USER" /backuponepass
-    chmod 777 /backuponepass
+    chmod -R 777 /backuponepass
 
     # vgl for user
     echo "export PATH=/usr/NX/scripts/vgl:\$PATH" >>/home/"$USER"/.bashrc

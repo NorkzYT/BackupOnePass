@@ -14,7 +14,7 @@ echo "Waiting for a second before starting the export process..."
 sleep 1
 
 echo "Typing the secret key..."
-xdotool type "$UBUNTU_DESKTOP_ONEPASSWORD_PASSWORD"
+xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
 echo "Navigating through the export dialog..."
 xdotool key Tab
 xdotool key Tab
@@ -30,7 +30,7 @@ xdotool key Ctrl+l
 sleep 0.5
 
 echo "Typing the save location path..."
-xdotool type "/docker/config/data"
+xdotool type "/backuponepass/data"
 sleep 0.5
 
 echo "Confirming the save location..."
