@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="Docs/content/assets/img/backuponepass-cover-rl.png" width="490">
+    <img src="docs/content/assets/img/backuponepass-cover-rl.png" width="490">
 </p>
 
 <p align="center">Automatically backup your 1Password Data</p>
