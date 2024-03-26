@@ -34,3 +34,6 @@ yarn-error.log*
 
 # Export Data
 docker/data
+
+# OpenCommit commitlint config
+.opencommit-commitlint
