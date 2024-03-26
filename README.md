@@ -88,6 +88,13 @@ Created by NorkzYT with 💛
       - [monitor-1password-logs.sh](./docker/scripts/monitor-1password-logs.sh)
   - [docker-compose.yml](./docker-compose.yml)
   - [dockerfile](./dockerfile)
+  - [**docs**](./docs)
+    - [**content**](./docs/content)
+      - [**assets**](./docs/content/assets)
+        - [**img**](./docs/content/assets/img)
+          - [backuponepass-cover-rl.png](./docs/content/assets/img/backuponepass-cover-rl.png)
+      - [backuponepass-cover.psd](./docs/content/backuponepass-cover.psd)
   - [package.json](./package.json)
+  - [renovate.json](./renovate.json)
   - [repoTree.py](./repoTree.py)
 
