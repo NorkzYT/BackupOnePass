@@ -1,25 +1,20 @@
 #!/bin/bash
 
+# Source the monitor script
+source "/backuponepass/scripts/monitor-1password-logs.sh"
+echo "Loaded monitor-1password-logs.sh..."
+
 echo "Starting 1Password Automation Script..."
 
 # Start 1Password without sandboxing and send it to the background
 1password --no-sandbox &
 sleep 6
 
-# Loop until the "1Password" is fully running
-while true; do
-    source "/backuponepass/scripts/monitor-1password-logs.sh"
-    echo "Loaded monitor-1password-logs.sh..."
-
-    if monitor_logs_for_line "System unlock was attempted but we cannot use it."; then
-        sleep 1
-        # If found, break out of the loop
-        break
-    else
-        # If not found, sleep for 1 second and try again
-        sleep 1
-    fi
-done
+# Monitor logs with a timeout of 120 seconds.
+if ! monitor_logs_for_line "System unlock" 120; then
+    echo "Failed to detect unlock log line within timeout." >&2
+    exit 1
+fi
 
 # Auto Login for 1Password.
 bash /backuponepass/scripts/auto-login-1password.sh

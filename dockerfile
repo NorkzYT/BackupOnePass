@@ -3,20 +3,33 @@ FROM ubuntu:20.04
 LABEL maintainer="NorkzYT richard@pcscorp.dev"
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV USER=ubuntu \
-    PASSWORD=ubuntu \
-    UID=1000 \
-    GID=1000
 
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=all
-ENV VGL_DISPLAY=egl
+ARG USER
+ARG PASSWORD
+ARG UID
+ARG GID
 
-# Create folder
-RUN mkdir -p /backuponepass
+ENV USER=${USER} \
+    PASSWORD=${PASSWORD} \
+    UID=${UID} \
+    GID=${GID}
+
+# Create user and group, configure user settings
+RUN groupadd -g "$GID" "$USER" && \
+    useradd --create-home --no-log-init -u "$UID" -g "$GID" "$USER" && \
+    usermod -aG sudo "$USER" && \
+    echo "$USER:$PASSWORD" | chpasswd && \
+    chsh -s /bin/bash "$USER"
+
+# Create folders and set permissions
+RUN mkdir -p /backuponepass/config /backuponepass/scripts /backuponepass/images && \
+    chown -R "$USER":"$USER" /backuponepass
 
 # Copy env file
 COPY .env /backuponepass
+
+## Copy 1password_start.sh file 
+COPY docker/1password_start.sh /backuponepass/1password_start.sh
 
 ## Copy config folder 
 COPY docker/config /backuponepass/config
@@ -43,16 +56,8 @@ RUN apt-get update && \
 
 ## Install desktop
 RUN apt-get update && \
-    # add apt repo for firefox
-    add-apt-repository -y ppa:mozillateam/ppa &&\
-    mkdir -p /etc/apt/preferences.d &&\
-    echo "Package: firefox*\n\
-    Pin: release o=LP-PPA-mozillateam\n\
-    Pin-Priority: 1001" > /etc/apt/preferences.d/mozilla-firefox &&\
-    # install xfce4 and firefox
-    apt-get install -y xfce4 terminator fonts-wqy-zenhei ffmpeg firefox &&\
-    # set firefox as default web browser
-    update-alternatives --set x-www-browser /usr/bin/firefox &&\
+    # install xfce4
+    apt-get install -y xfce4 terminator fonts-wqy-zenhei ffmpeg &&\
     rm -rf /var/lib/apt/lists/*
 
 ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket

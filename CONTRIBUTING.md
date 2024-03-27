@@ -19,7 +19,6 @@ You will need to install and configure the following dependencies on your linux 
 - [npm](https://www.npmjs.com/) latest
 - [Bun](https://bun.sh/) latest (Install with `npm install -g bun`)
 - [GNU Make](https://www.gnu.org/software/make/) latest (Install with `sudo apt-get install make -y`).
-- [OpenCommit](https://github.com/di-sukharev/opencommit) latest (Install with `npm install -g opencommit` [OPTIONAL] ).
 
 ## Local development
 

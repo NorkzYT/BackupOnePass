@@ -63,8 +63,7 @@ if [ -n "$FIRST_STARTUP" ]; then
     echo "Login details entered, waiting for potential MFA prompt..."
     sleep 4
 
-    initiate_log_monitor
-    if monitor_logs_for_line "Prompting user for MFA"; then
+    if monitor_logs_for_line "Prompting user for MFA" 120; then
         enter_2fa
     else
         echo "MFA prompt not detected. Will continue without MFA."
@@ -74,6 +73,9 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     echo "Detected subsequent login attempt..."
     xdotool windowactivate "$LOCK_SCREEN_WINDOW_ID"
     sleep 1
+    echo "Fullscreening the 1Password window..."
+    xdotool key F11
+    sleep 1
     echo "Typing the password for subsequent login..."
     xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
     sleep 1
@@ -82,8 +84,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     echo "Waiting for potential MFA Prompt after subsequent login..."
     sleep 4
 
-    initiate_log_monitor
-    if monitor_logs_for_line "Prompting user for MFA"; then
+    if monitor_logs_for_line "Prompting user for MFA" 120; then
         enter_2fa
     else
         echo "MFA prompt not detected in subsequent login. Continuing..."

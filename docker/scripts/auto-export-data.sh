@@ -40,9 +40,12 @@ echo "Waiting for a second to ensure the save location is confirmed..."
 sleep 1
 
 echo "Starting to monitor the 1Password log for the 'Finished export task' message..."
-monitor_logs_for_line "Finished export task" && {
+if ! monitor_logs_for_line "Finished export task" 120; then
+    echo "'Finished export task' not found in logs. Checking again..."
+else
     echo "'Finished export task' found in logs. Confirming export completion..."
     xdotool key Return
-}
+fi
+
 
 echo "Auto-export-data script completed."

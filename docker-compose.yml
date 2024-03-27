@@ -3,7 +3,13 @@ services:
   backuponepass:
     build:
       context: .
+      args:
+        - USER=${BACKUP_ONE_PASS_USER:?error}
+        - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
+        - GID=${BACKUP_ONE_PASS_GID:?error}
+        - UID=${BACKUP_ONE_PASS_UID:?error}
     container_name: backuponepass
+    hostname: backuponepass
     environment:
       - USER=${BACKUP_ONE_PASS_USER:?error}
       - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
@@ -16,7 +22,7 @@ services:
       - "14000:4000" # Remote desktop access
     volumes:
       - /dev/shm:/dev/shm # Shared memory
-      - ./docker/data:/backuponepass/data
+      - ./docker/data:/backuponepass/data # 1Password Data Output
     cap_add:
       - SYS_PTRACE
     shm_size: "8gb"
