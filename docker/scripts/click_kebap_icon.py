@@ -54,20 +54,14 @@ def find_button_and_click(template_path):
 
 
 if __name__ == "__main__":
-    print("Starting the process to find and click the export button...")
+    print("Starting the process to find and click the kebap icon...")
 
     # The path to the template images
-    BUTTON_TEMPLATE_PATH = "/backuponepass/images/button_template.png"
-    EXPORT_BUTTON_TEMPLATE_PATH = (
-        "/backuponepass/images/export_button_template.png"
-    )
+    KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template.png"
 
-    # Define the horizontal offset to click to the right of the Export button
-    HORIZONTAL_OFFSET = 200  # Adjust as needed based on your UI
-
-    # Click the initial button
+    # Click the Kebap icon button
     print("Looking for the initial button...")
-    button_coords = find_button_and_click(BUTTON_TEMPLATE_PATH)
+    button_coords = find_button_and_click(KEBAP_ICON_TEMPLATE_PATH)
     if button_coords:
         click_location(*button_coords)
         print("Initial button clicked. Waiting for UI animation...")
@@ -75,19 +69,3 @@ if __name__ == "__main__":
         time.sleep(1)
     else:
         print("Failed to find the initial button.")
-
-    # Click the Export button
-    print("Looking for the Export button...")
-    export_coords = find_button_and_click(EXPORT_BUTTON_TEMPLATE_PATH)
-    if export_coords:
-        click_location(*export_coords)
-        print(
-            "Export button clicked. Preparing to click to the right of the Export button..."
-        )
-        # Wait a moment before clicking to the right of the Export button
-        time.sleep(1)
-        # Click to the right of the Export button
-        click_location(export_coords[0] + HORIZONTAL_OFFSET, export_coords[1])
-        print("Clicked to the right of the Export button.")
-    else:
-        print("Failed to find the Export button.")

@@ -28,8 +28,6 @@ if [ -n "$FIRST_STARTUP" ]; then
     # Activate the window
     xdotool windowactivate "$FIRST_STARTUP"
     sleep 1 # Small delay
-    echo "Fullscreening the 1Password window..."
-    xdotool key F11
     echo "Navigating to 'Sign In' button..."
     xdotool key Tab    # Navigate to the "Sign In" button
     xdotool key Return # Press Enter to activate the button
@@ -72,9 +70,6 @@ if [ -n "$FIRST_STARTUP" ]; then
 elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     echo "Detected subsequent login attempt..."
     xdotool windowactivate "$LOCK_SCREEN_WINDOW_ID"
-    sleep 1
-    echo "Fullscreening the 1Password window..."
-    xdotool key F11
     sleep 1
     echo "Typing the password for subsequent login..."
     xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"

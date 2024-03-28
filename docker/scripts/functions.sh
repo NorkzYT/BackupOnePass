@@ -31,13 +31,3 @@ enter_2fa() {
 
     echo "2FA process completed."
 }
-
-# Function to initiate log monitoring
-initiate_log_monitor() {
-    echo "Preparing to initiate log monitoring..."
-    # Mock actions to enable log monitoring:
-    xdotool type "q"
-    xdotool key Return
-    xdotool key BackSpace
-    echo "Log monitoring initiated."
-}

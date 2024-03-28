@@ -10,6 +10,23 @@ set -a
 source /backuponepass/.env
 set +a
 
+echo "Opening the export menu..."
+
+# Simulate pressing the down arrow key
+xdotool key Down
+xdotool key Down
+xdotool key Down
+xdotool key Down
+
+# Click Enter
+xdotool key Return
+
+# Simulate pressing the right arrow key
+xdotool key Right
+
+# Click Enter
+xdotool key Return
+
 echo "Waiting for a second before starting the export process..."
 sleep 1
 
@@ -25,16 +42,28 @@ xdotool key Return # Export Data
 echo "Waiting for a second before navigating to the address bar..."
 sleep 1
 
-echo "Navigating to the address bar to type the save location..."
-xdotool key Ctrl+l
-sleep 0.5
+# -------------------------------------------------------------
+### Non-Headless
 
-echo "Typing the save location path..."
-xdotool type "/backuponepass/data"
-sleep 0.5
+# echo "Navigating to the address bar to type the save location..."
+# xdotool key Ctrl+l
+# sleep 0.5
 
-echo "Confirming the save location..."
-xdotool key Return
+# echo "Typing the save location path..."
+# xdotool type "/backuponepass/data"
+# sleep 0.5
+
+# echo "Confirming the save location..."
+# xdotool key Return
+
+# -------------------------------------------------------------
+
+### Headless
+
+# Go into the file directory to then save and start export process
+python3 /backuponepass/scripts/click_export_location.py
+
+# -------------------------------------------------------------
 
 echo "Waiting for a second to ensure the save location is confirmed..."
 sleep 1
@@ -46,6 +75,5 @@ else
     echo "'Finished export task' found in logs. Confirming export completion..."
     xdotool key Return
 fi
-
 
 echo "Auto-export-data script completed."
