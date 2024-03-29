@@ -4,27 +4,6 @@ LABEL maintainer="NorkzYT richard@pcscorp.dev"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG USER
-ARG PASSWORD
-ARG UID
-ARG GID
-
-ENV USER=${USER} \
-    PASSWORD=${PASSWORD} \
-    UID=${UID} \
-    GID=${GID}
-
-# Create user and group, configure user settings
-RUN groupadd -g "$GID" "$USER" && \
-    useradd --create-home --no-log-init -u "$UID" -g "$GID" "$USER" && \
-    usermod -aG sudo "$USER" && \
-    echo "$USER:$PASSWORD" | chpasswd && \
-    chsh -s /bin/bash "$USER"
-
-# Create folders and set permissions
-RUN mkdir -p /backuponepass/config /backuponepass/scripts /backuponepass/images && \
-    chown -R "$USER":"$USER" /backuponepass
-
 ## Copy 1password_start.sh file 
 COPY docker/1password_start.sh /backuponepass/1password_start.sh
 

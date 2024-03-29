@@ -1,17 +1,15 @@
 #!/bin/sh
-## initialize environment
-if [ ! -f "/backuponepass/config/init_flag" ]; then
 
-    # extra env init for developer
-    if [ -f "/backuponepass/config/env_init.sh" ]; then
-        bash /backuponepass/config/env_init.sh
-    fi
-    # custom env init for user
-    if [ -f "/backuponepass/config/custom_env_init.sh" ]; then
-        bash /backuponepass/config/custom_env_init.sh
-    fi
-    echo "ok" >/backuponepass/config/init_flag
-fi
+# Create user and group, configure user settings
+groupadd -g "$GID" "$USER" || true
+useradd --create-home --no-log-init -u "$UID" -g "$GID" "$USER" || true # Ignore error if user exists
+usermod -aG sudo "$USER"
+echo "$USER:$PASSWORD" | chpasswd
+chsh -s /bin/bash "$USER"
+
+# Ensure the directory structure exists and set permissions
+mkdir -p /backuponepass/config /backuponepass/scripts /backuponepass/images
+chown -R "$USER":"$USER" /backuponepass
 
 # start nxserver
 /etc/init.d/dbus start

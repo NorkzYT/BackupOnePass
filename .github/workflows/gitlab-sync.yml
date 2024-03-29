@@ -1,4 +1,5 @@
-name: GitlabSync
+# Syncs entire repo to Gitlab
+name: ♻ GitlabSync
 
 on:
   - push

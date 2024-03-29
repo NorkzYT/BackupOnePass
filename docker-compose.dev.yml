@@ -3,11 +3,6 @@ services:
   backuponepass:
     build:
       context: .
-      args:
-        - USER=${BACKUP_ONE_PASS_USER:?error}
-        - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
-        - GID=${BACKUP_ONE_PASS_GID:?error}
-        - UID=${BACKUP_ONE_PASS_UID:?error}
     container_name: backuponepass
     hostname: backuponepass
     environment:
