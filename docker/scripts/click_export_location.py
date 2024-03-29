@@ -30,7 +30,7 @@ def find_button_and_click(template_path, threshold=0.8, double_click=False):
 
     if np.any(res >= threshold):
         print("Template matched. Finding the best match.")
-        loc = np.where(res >= threshold)
+        loc = np.nonzero(res >= threshold)
         pt = max(zip(*loc[::-1]), key=lambda pt: res[pt[::-1]])
         center_x, center_y = pt[0] + w // 2, pt[1] + h // 2
         click_location(center_x, center_y, 2 if double_click else 1)
@@ -48,25 +48,25 @@ if __name__ == "__main__":
     backuponepass_data_folder_template = "/backuponepass/images/backuponepass_data_folder_template.png"
     save_button_template = "/backuponepass/images/save_button_template.png"
 
-    time.sleep(2)  # Give the UI some time to be ready
+    time.sleep(4)  # Give the UI some time to be ready
 
     if not find_button_and_click(slash_folder_template):
         print("Could not click the '/' folder.")
         exit(1)
 
-    time.sleep(2)  # Wait for the navigation
+    time.sleep(4)  # Wait for the navigation
 
     if not find_button_and_click(backuponepass_folder_template, double_click=True):
         print("Could not double-click the 'backuponepass' folder.")
         exit(1)
 
-    time.sleep(2)  # Wait for the navigation
+    time.sleep(4)  # Wait for the navigation
 
     if not find_button_and_click(backuponepass_data_folder_template, double_click=True):
         print("Could not double-click the 'backuponepass_data' folder.")
         exit(1)
 
-    time.sleep(2)  # Wait for the navigation
+    time.sleep(4)  # Wait for the navigation
 
     if not find_button_and_click(save_button_template):
         print("Could not click the 'Save' button.")

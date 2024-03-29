@@ -35,7 +35,7 @@ def find_button_and_click(template_path):
     # Match the template
     res = cv2.matchTemplate(screen_gray, template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
-    loc = np.where(res >= threshold)
+    loc = np.nonzero(res >= threshold)
 
     if np.any(res >= threshold):
         print("Template matched. Finding the best match.")
@@ -56,6 +56,8 @@ def find_button_and_click(template_path):
 if __name__ == "__main__":
     print("Starting the process to find and click the kebap icon...")
 
+    time.sleep(4)  # Give the UI some time to be ready
+    
     # The path to the template images
     KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template.png"
 
@@ -66,6 +68,6 @@ if __name__ == "__main__":
         click_location(*button_coords)
         print("Initial button clicked. Waiting for UI animation...")
         # Wait a moment for any UI animation
-        time.sleep(1)
+        time.sleep(2)
     else:
         print("Failed to find the initial button.")
