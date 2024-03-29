@@ -15,4 +15,4 @@ help:
 
 ### Main Script ###
 run:
-	docker compose up -d --force-recreate
+	docker compose -f docker-compose.dev.yml up -d --force-recreate

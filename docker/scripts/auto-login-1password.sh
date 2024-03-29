@@ -8,12 +8,6 @@ echo "Loaded functions.sh..."
 source "/backuponepass/scripts/monitor-1password-logs.sh"
 echo "Loaded monitor-1password-logs.sh..."
 
-echo "Sourcing environment variables from .env file..."
-# Source the environment variables from the .env file
-set -a
-source /backuponepass/.env
-set +a
-
 echo "Searching for 1Password startup window..."
 # Try to find the 1Password first-time startup window
 FIRST_STARTUP=$(xdotool search --name "Welcome — 1Password" | head -1)
@@ -25,8 +19,6 @@ LOCK_SCREEN_WINDOW_ID=$(xdotool search --name "Lock Screen — 1Password" | head
 # Check for a specific GUI state that indicates a first-time login
 if [ -n "$FIRST_STARTUP" ]; then
     echo "Detected first-time setup, initiating login sequence..."
-    # Activate the window
-    xdotool windowactivate "$FIRST_STARTUP"
     sleep 1 # Small delay
     echo "Navigating to 'Sign In' button..."
     xdotool key Tab    # Navigate to the "Sign In" button
@@ -44,14 +36,14 @@ if [ -n "$FIRST_STARTUP" ]; then
 
     echo "Typing in account details..."
     sleep 2
-    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_EMAIL"
+    xdotool type "$ONEPASSWORD_EMAIL"
     xdotool key Tab
     sleep 1
-    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_SECRET_KEY"
+    xdotool type "$ONEPASSWORD_SECRET_KEY"
     xdotool key Tab
     xdotool key Tab
     sleep 1
-    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
+    xdotool type "$ONEPASSWORD_PASSWORD"
     xdotool key Tab
     xdotool key Tab
     sleep 1
@@ -72,7 +64,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     xdotool windowactivate "$LOCK_SCREEN_WINDOW_ID"
     sleep 1
     echo "Typing the password for subsequent login..."
-    xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
+    xdotool type "$ONEPASSWORD_PASSWORD"
     sleep 1
     xdotool key Return
 

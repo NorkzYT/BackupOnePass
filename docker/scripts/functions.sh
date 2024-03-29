@@ -5,7 +5,7 @@ enter_2fa() {
     echo "Attempting to generate and enter 2FA code..."
 
     # Generate a 2FA code using the secret key (if TOTP is used)
-    TWOFA_CODE=$(oathtool --totp -b "$BACKUP_ONE_PASS_ONEPASSWORD_TOTP_SECRET")
+    TWOFA_CODE=$(oathtool --totp -b "$ONEPASSWORD_TOTP_SECRET")
     echo "2FA code generated."
 
     # Use xdotool to enter the 2FA code if the TWOFA_CODE variable is not empty

@@ -28,15 +28,11 @@
 
 ## About
 
-BackupOnePass is a docker service that will automatically backup your 1Password data in respective to a CRON Schedule.
+BackupOnePass is a docker service that will automatically backup your 1Password data.
 
 ## How to Use
 
-```bash
-sudo wget -qO /opt/PCSInstall.sh https://raw.githubusercontent.com/NorkzYT/BackupOnePass/main/PCSMenu/PCSInstall.sh
-sudo chmod +x /opt/PCSInstall.sh
-sudo /opt/PCSInstall.sh --branch="main"
-```
+Duplicate the `.env.example` file, naming the copy `.env`. Complete the necessary information within `.env`, then proceed to construct the `docker-compose.yml` file.
 
 ## Contributing
 
@@ -77,15 +73,20 @@ Created by NorkzYT with 💛
       - [test_cv.py](./docker/examples/test_cv.py)
       - [virtual_display_env_1password.sh](./docker/examples/virtual_display_env_1password.sh)
     - [**images**](./docker/images)
+      - [backuponepass_data_folder_template.png](./docker/images/backuponepass_data_folder_template.png)
+      - [backuponepass_folder_template.png](./docker/images/backuponepass_folder_template.png)
       - [button_template.png](./docker/images/button_template.png)
-      - [export_button_template.png](./docker/images/export_button_template.png)
+      - [save_button_template.png](./docker/images/save_button_template.png)
+      - [slash_folder_template.png](./docker/images/slash_folder_template.png)
     - [**scripts**](./docker/scripts)
       - [auto-export-data.sh](./docker/scripts/auto-export-data.sh)
       - [auto-login-1password.sh](./docker/scripts/auto-login-1password.sh)
-      - [click_export_button.py](./docker/scripts/click_export_button.py)
+      - [click_export_location.py](./docker/scripts/click_export_location.py)
+      - [click_kebap_icon.py](./docker/scripts/click_kebap_icon.py)
       - [functions.sh](./docker/scripts/functions.sh)
       - [lock-1password.sh](./docker/scripts/lock-1password.sh)
       - [monitor-1password-logs.sh](./docker/scripts/monitor-1password-logs.sh)
+      - [quit-1password.sh](./docker/scripts/quit-1password.sh)
   - [docker-compose.yml](./docker-compose.yml)
   - [dockerfile](./dockerfile)
   - [**docs**](./docs)

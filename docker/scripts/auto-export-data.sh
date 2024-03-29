@@ -4,12 +4,6 @@ echo "Starting auto-export-data script..."
 
 source "/backuponepass/scripts/monitor-1password-logs.sh"
 
-echo "Sourcing environment variables from .env file..."
-# Source the environment variables from the .env file
-set -a
-source /backuponepass/.env
-set +a
-
 echo "Opening the export menu..."
 
 # Simulate pressing the down arrow key
@@ -31,15 +25,13 @@ echo "Waiting for a second before starting the export process..."
 sleep 1
 
 echo "Typing the secret key..."
-xdotool type "$BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD"
+xdotool type "$ONEPASSWORD_PASSWORD"
 echo "Navigating through the export dialog..."
 xdotool key Tab
 xdotool key Tab
 xdotool key Tab
 echo "Initiating the export process..."
 xdotool key Return # Export Data
-
-echo "Waiting for a second before navigating to the address bar..."
 sleep 1
 
 # -------------------------------------------------------------

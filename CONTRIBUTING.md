@@ -49,7 +49,9 @@ To contribute code, you must fork the [BackupOnePass repo](https://github.com/No
 
 #### Get Started
 
-1. Run the following command.
+1. Duplicate the `.env.example` file, naming the copy `.env`. Complete the necessary information within `.env`.
+
+2. Run the following command.
    ```sh
    make run # Sets up and runs docker service
    ```
