@@ -1,13 +1,7 @@
 version: "3.9"
 services:
   backuponepass:
-    build:
-      context: .
-      args:
-        - USER=${BACKUP_ONE_PASS_USER:?error}
-        - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
-        - GID=${BACKUP_ONE_PASS_GID:?error}
-        - UID=${BACKUP_ONE_PASS_UID:?error}
+    image: norkz/backuponepass
     container_name: backuponepass
     hostname: backuponepass
     environment:
@@ -24,7 +18,7 @@ services:
       - "14000:4000" # NoMachine Remote desktop access
     volumes:
       - /dev/shm:/dev/shm # Shared memory
-      - ./docker/data:/backuponepass/data # 1Password Data Output
+      - ./data:/backuponepass/data # 1Password Data Output
     cap_add:
       - SYS_PTRACE
     restart: on-failure
