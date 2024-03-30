@@ -44,7 +44,7 @@ jobs:
             ${{ env.DH_IMAGE }}
             ghcr.io/${{ env.GH_IMAGE }}
           tags: |
-            type=semver,event=tag,pattern={{version}},value={{tag}}
+            type=semver,event=tag,pattern={{version}}
           labels: |
             maintainer=NorkzYT
             org.opencontainers.image.title=Backuponepass
