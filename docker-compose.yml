@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   backuponepass:
-    image: norkz/backuponepass
+    image: norkz/backuponepass:1.0.0
     container_name: backuponepass
     hostname: backuponepass
     environment:
