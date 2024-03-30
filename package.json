@@ -1,10 +1,9 @@
 {
 	"name": "backuponepass",
 	"description": "Automatically backup your 1Password Data.",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"author": "NorkzYT",
 	"private": false,
-	"main": "start.sh",
 	"scripts": {
 		"clean:install": "rm -rf node_modules/ && rm -rf bun.lockb && bun i",
 		"prettier:check": "prettier --check .",
