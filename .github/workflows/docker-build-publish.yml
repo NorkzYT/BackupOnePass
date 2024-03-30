@@ -32,10 +32,6 @@ jobs:
       - name: 🛎️ Checkout Repo
         uses: actions/checkout@v2
 
-      - name: 🔖 Get App Version
-        uses: tyankatsu0105/read-package-version-actions@v1
-        id: package-version
-
       - name: 🗂️ Make Docker Meta
         id: meta
         uses: docker/metadata-action@v3
@@ -44,8 +40,7 @@ jobs:
             ${{ env.DH_IMAGE }}
             ghcr.io/${{ env.GH_IMAGE }}
           tags: |
-            type=ref,event=tag,suffix={{tag}}
-            type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
+            type=ref,event=tag,pattern={{version}},suffix={{tag}}
           labels: |
             maintainer=NorkzYT
             org.opencontainers.image.title=Backuponepass
