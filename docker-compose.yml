@@ -18,7 +18,7 @@ services:
       - "14000:4000" # NoMachine Remote desktop access
     volumes:
       - /dev/shm:/dev/shm # Shared memory
-      - ./data:/backuponepass/data # 1Password Data Output
+      - /opt/appdata/backuponepass/data:/backuponepass/data # 1Password Data Output
     cap_add:
       - SYS_PTRACE
     restart: on-failure
