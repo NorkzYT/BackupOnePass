@@ -28,11 +28,25 @@
 
 ## About
 
-BackupOnePass is a docker service that will automatically backup your 1Password data.
+BackupOnePass is a docker service that will automatically backup your 1Password data. 
 
-## How to Use
+## Getting Started
 
-Duplicate the `.env.example` file, naming the copy `.env`. Complete the necessary information within `.env`, then proceed to construct the `docker-compose.yml` file.
+### Setup Instructions
+1. Start by duplicating the `.env.example` file, renaming the duplicate to `.env`. Fill in the required fields within `.env`.
+2. Proceed to craft your `docker-compose.yml` file, tailoring it to your environment.
+
+## Usage
+
+### Regular Backups with Cron
+BackupOnePass can be integrated into your existing backup schedule using Cron. Here is an example to run backups every Friday at 22:00:
+
+```bash
+echo "0 22 * * 5 /opt/BackupOnePass/backup_schedule_example.sh >> /var/log/backup_schedule_example.log 2>&1" | crontab -
+```
+
+Refer to the provided [example script](./backup_schedule_example.sh) for a template on setting up scheduled backups for BackupOnePass.
+
 
 ## Contributing
 
@@ -70,14 +84,17 @@ Created by NorkzYT with 💛
   - [LICENSE](./LICENSE)
   - [Makefile](./Makefile)
   - [README.md](./README.md)
+  - [backup_schedule_example.sh](./backup_schedule_example.sh)
   - [bun.lockb](./bun.lockb)
   - [commitlint.config.cjs](./commitlint.config.cjs)
+  - [**data**](./data)
   - [**docker**](./docker)
     - [1password_start.sh](./docker/1password_start.sh)
     - [**config**](./docker/config)
       - [entrypoint.sh](./docker/config/entrypoint.sh)
       - [install_1password.sh](./docker/config/install_1password.sh)
       - [install_nomachine.sh](./docker/config/install_nomachine.sh)
+    - [**data**](./docker/data)
     - [**examples**](./docker/examples)
     - [**images**](./docker/images)
       - [backuponepass_data_folder_template.png](./docker/images/backuponepass_data_folder_template.png)
