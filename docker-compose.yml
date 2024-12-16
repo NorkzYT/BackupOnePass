@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   backuponepass:
     image: norkz/backuponepass:1.0.0
@@ -14,8 +13,8 @@ services:
       - ONEPASSWORD_SECRET_KEY=${BACKUP_ONE_PASS_ONEPASSWORD_SECRET_KEY:?error}
       - ONEPASSWORD_PASSWORD=${BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD:?error}
       - ONEPASSWORD_TOTP_SECRET=${BACKUP_ONE_PASS_ONEPASSWORD_TOTP_SECRET:?error}
-    ports:
-      - "14000:4000" # NoMachine Remote desktop access
+    # ports:
+    #   - "14000:4000" # NoMachine Remote desktop access (Only for development)
     volumes:
       - /dev/shm:/dev/shm # Shared memory
       - /opt/appdata/backuponepass/data:/backuponepass/data # 1Password Data Output

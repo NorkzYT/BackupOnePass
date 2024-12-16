@@ -59,7 +59,7 @@ if __name__ == "__main__":
     time.sleep(4)  # Give the UI some time to be ready
     
     # The path to the template images
-    KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template.png"
+    KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template_white.png"
 
     # Click the Kebap icon button
     print("Looking for the initial button...")

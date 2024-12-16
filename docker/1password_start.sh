@@ -5,17 +5,14 @@
 
 # Start D-Bus if not already running
 if ! pgrep -x "dbus-daemon" >/dev/null; then
-    dbus-daemon --session --fork
+    echo "Starting D-Bus..."
+    dbus-daemon --system --fork
 fi
 
-# Start Xvfb on display :99
+# Start virtual display for GUI automation
 Xvfb :99 -screen 0 1920x1080x24 &
-
-# Wait for Xvfb to start
-sleep 2
-
-# Export the DISPLAY variable
 export DISPLAY=:99
+sleep 2
 
 # -------------------------------------------------------------
 ### Non-Headless
@@ -31,7 +28,7 @@ su "$USER" -c '1password --no-sandbox &'
 sleep 6
 
 # Monitor logs with a timeout of 120 seconds.
-if ! monitor_logs_for_line "System unlock" 120; then
+if ! monitor_logs_for_line "Starting filesystem watcher for SSH agent configuration directories" 120; then
     echo "Failed to detect unlock log line within timeout." >&2
     exit 1
 fi

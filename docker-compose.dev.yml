@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   backuponepass:
     build:
@@ -16,7 +15,7 @@ services:
       - ONEPASSWORD_PASSWORD=${BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD:?error}
       - ONEPASSWORD_TOTP_SECRET=${BACKUP_ONE_PASS_ONEPASSWORD_TOTP_SECRET:?error}
     ports:
-      - "14000:4000" # NoMachine Remote desktop access
+      - "14000:4000" # NoMachine Remote desktop access w/protocol "NX"—(Only for development).
     volumes:
       - /dev/shm:/dev/shm # Shared memory
       - ./docker/data:/backuponepass/data # 1Password Data Output

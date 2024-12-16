@@ -28,26 +28,29 @@ if [ -n "$FIRST_STARTUP" ]; then
     sleep 2
 
     echo "Going to 'Enter account details'..."
-    xdotool key Tab
-    xdotool key Tab
-    xdotool key Tab
-    xdotool key Tab
-    xdotool key Return # Press Enter to select
 
     echo "Typing in account details..."
     sleep 2
+    echo "Typing in Email..."
     xdotool type "$ONEPASSWORD_EMAIL"
     xdotool key Tab
+    xdotool key Tab
+    xdotool key Tab
+    xdotool key Tab
+    xdotool key Tab
+    xdotool key Return
     sleep 1
+    echo "Typing in Secret key..."
     xdotool type "$ONEPASSWORD_SECRET_KEY"
     xdotool key Tab
     xdotool key Tab
     sleep 1
+    echo "Typing in Password..."
     xdotool type "$ONEPASSWORD_PASSWORD"
     xdotool key Tab
     xdotool key Tab
     sleep 1
-    xdotool key Tab # Skip over the "Get help" link
+    xdotool key Tab # Skip over the "Use your Emergency Kit & Find your Secret Key"
     xdotool key Return
 
     echo "Login details entered, waiting for potential MFA prompt..."
