@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: 🛎️ Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: 🔖 Get App Version
         uses: tyankatsu0105/read-package-version-actions@v1
