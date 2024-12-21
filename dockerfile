@@ -34,6 +34,8 @@ ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
 RUN apt-get update && apt-get install -y pulseaudio && mkdir -p /var/run/dbus &&\
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y cron
+
 ## Install nomachine
 RUN bash /backuponepass/config/install_nomachine.sh && \
     groupmod -g 2000 nx && \

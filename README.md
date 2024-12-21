@@ -39,13 +39,18 @@ BackupOnePass is a docker service that will automatically backup your 1Password 
 ## Usage
 
 ### Regular Backups with Cron
-BackupOnePass can be integrated into your existing backup schedule using Cron. Here is an example to run backups every Friday at 22:00:
+BackupOnePass supports regular automated backups using Cron. To enable scheduled backups, you need to configure the `TZ` (time zone) and `BACKUP_SCHEDULE` environment variables in your setup.
 
-```bash
-echo "0 22 * * 5 /opt/BackupOnePass/backup_schedule_example.sh >> /var/log/backup_schedule_example.log 2>&1" | crontab -
-```
-
-Refer to the provided [example script](./backup_schedule_example.sh) for a template on setting up scheduled backups for BackupOnePass.
+#### Environment Variables Required:
+- **`TZ`**: Specifies the time zone for the scheduled tasks. For example:
+  ```bash
+  TZ='America/New_York'
+  ```
+- **`BACKUP_SCHEDULE`**: Defines the Cron schedule for running backups. For example:
+  ```bash
+  BACKUP_SCHEDULE='0 22 * * 5'
+  ```
+  This example runs backups every Friday at 22:00.
 
 
 ## Contributing
@@ -84,7 +89,6 @@ Created by NorkzYT with 💛
   - [LICENSE](./LICENSE)
   - [Makefile](./Makefile)
   - [README.md](./README.md)
-  - [backup_schedule_example.sh](./backup_schedule_example.sh)
   - [bun.lockb](./bun.lockb)
   - [commitlint.config.cjs](./commitlint.config.cjs)
   - [**data**](./data)

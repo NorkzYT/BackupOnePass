@@ -37,23 +37,23 @@ sleep 1
 # -------------------------------------------------------------
 ### Non-Headless
 
-# echo "Navigating to the address bar to type the save location..."
-# xdotool key Ctrl+l
-# sleep 0.5
-
-# echo "Typing the save location path..."
-# xdotool type "/backuponepass/data"
-# sleep 0.5
-
-# echo "Confirming the save location..."
-# xdotool key Return
+# Go into the file directory to then save and start export process
+#python3 /backuponepass/scripts/click_export_location.py
 
 # -------------------------------------------------------------
 
 ### Headless
 
-# Go into the file directory to then save and start export process
-python3 /backuponepass/scripts/click_export_location.py
+echo "Navigating to the address bar to type the save location..."
+xdotool key Ctrl+l
+sleep 1
+
+echo "Typing the save location path..."
+xdotool type "/backuponepass/data"
+sleep 1
+
+echo "Confirming the save location..."
+xdotool key Return
 
 # -------------------------------------------------------------
 
@@ -61,10 +61,11 @@ echo "Waiting for a second to ensure the save location is confirmed..."
 sleep 1
 
 echo "Starting to monitor the 1Password log for the 'Finished export task' message..."
-if ! monitor_logs_for_line "Finished export task" 120; then
+if ! monitor_logs_for_current_line "Finished export task" 120; then
     echo "'Finished export task' not found in logs. Checking again..."
 else
     echo "'Finished export task' found in logs. Confirming export completion..."
+    sleep 1
     xdotool key Return
 fi
 

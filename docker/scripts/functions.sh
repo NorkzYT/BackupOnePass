@@ -6,27 +6,27 @@ enter_2fa() {
 
     # Generate a 2FA code using the secret key (if TOTP is used)
     TWOFA_CODE=$(oathtool --totp -b "$ONEPASSWORD_TOTP_SECRET")
-    echo "2FA code generated."
-
-    # Use xdotool to enter the 2FA code if the TWOFA_CODE variable is not empty
     if [ -n "$TWOFA_CODE" ]; then
-        echo "Entering the 2FA code into the input field..."
-        xdotool type "$TWOFA_CODE"
-        echo "Navigating away from the 2FA field..."
-        xdotool key Tab # Navigate away from the 2FA field (if needed)
-        echo "Submitting the 2FA form..."
-        xdotool key Return # Submit the 2FA form
+        echo "2FA code generated: $TWOFA_CODE"
     else
-        echo "No 2FA code was generated. Skipping 2FA entry."
+        echo "Error: Failed to generate 2FA code."
+        return 1
     fi
 
-    # Wait for screen change and any pop-ups
-    echo "Waiting for potential screen changes or pop-ups..."
-    sleep 2
+    # Enter the 2FA code
+    echo "Entering the 2FA code..."
+    xdotool type "$TWOFA_CODE"
+    sleep 0.5
 
-    # Double Enter if anything pops-up to "Continue"
-    echo "Sending double 'Enter' key presses to bypass any pop-ups..."
+    # Submit the 2FA code
+    echo "Submitting the 2FA code..."
+    xdotool key Tab
+    sleep 0.5
     xdotool key Return
+
+    # Wait briefly to ensure the code is processed
+    echo "Waiting for confirmation of 2FA submission..."
+    sleep 2
     xdotool key Return
 
     echo "2FA process completed."

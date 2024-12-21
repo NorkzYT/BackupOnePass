@@ -61,26 +61,30 @@ if [ -n "$FIRST_STARTUP" ]; then
     else
         echo "MFA prompt not detected. Will continue without MFA."
     fi
-
 elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
-    echo "Detected subsequent login attempt..."
-    xdotool windowactivate "$LOCK_SCREEN_WINDOW_ID"
-    sleep 1
+    echo "Detected lock screen window for subsequent login..."
+
+    # Step 1: Enter the password
     echo "Typing the password for subsequent login..."
     xdotool type "$ONEPASSWORD_PASSWORD"
-    sleep 1
+    sleep 2
+
+    # Step 2: Navigate to the submit button and submit the password
+    xdotool key Tab
+    xdotool key Tab
     xdotool key Return
+    echo "Password submitted. Waiting for MFA prompt..."
 
-    echo "Waiting for potential MFA Prompt after subsequent login..."
-    sleep 4
-
-    if monitor_logs_for_line "Prompting user for MFA" 120; then
+    # Step 3: Wait for MFA prompt in the logs
+    if monitor_logs_for_current_line "Prompting user for MFA" 120; then
+        echo "Detected MFA prompt. Proceeding with 2FA..."
         enter_2fa
     else
-        echo "MFA prompt not detected in subsequent login. Continuing..."
+        echo "No MFA prompt detected. Assuming unlock process is complete."
     fi
 else
-    echo "1Password window not found or not ready yet. Exiting script."
+    echo "No lock screen or startup window detected. Exiting auto-login script."
+    exit 1
 fi
 
 echo "1Password auto-login script completed."
