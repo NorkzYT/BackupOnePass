@@ -34,20 +34,27 @@ if [ -n "$FIRST_STARTUP" ]; then
     echo "Typing in Email..."
     xdotool type "$ONEPASSWORD_EMAIL"
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
+    sleep 0.5
     xdotool key Return
     sleep 1
     echo "Typing in Secret key..."
     xdotool type "$ONEPASSWORD_SECRET_KEY"
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
     sleep 1
     echo "Typing in Password..."
     xdotool type "$ONEPASSWORD_PASSWORD"
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
     sleep 1
     xdotool key Tab # Skip over the "Use your Emergency Kit & Find your Secret Key"
@@ -71,6 +78,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
 
     # Step 2: Navigate to the submit button and submit the password
     xdotool key Tab
+    sleep 0.5
     xdotool key Tab
     xdotool key Return
     echo "Password submitted. Waiting for MFA prompt..."
@@ -78,6 +86,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     # Step 3: Wait for MFA prompt in the logs
     if monitor_logs_for_current_line "Prompting user for MFA" 120; then
         echo "Detected MFA prompt. Proceeding with 2FA..."
+        xdotool key Return
         enter_2fa
     else
         echo "No MFA prompt detected. Assuming unlock process is complete."

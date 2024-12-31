@@ -16,6 +16,10 @@ mkdir -p /home/$USER/.config/1Password/logs
 touch /home/$USER/.config/1Password/logs/1Password_rCURRENT.log
 chown -R "$USER":"$USER" /home/$USER/.config/1Password
 
+# Sync system time
+apt-get update && apt-get install -y ntpdate
+ntpdate -s time.nist.gov
+
 # Start DBus
 if [ ! -S /host/run/dbus/system_bus_socket ]; then
   echo "DBus socket not found. Please ensure it is mounted correctly."
@@ -28,6 +32,12 @@ fi
 printenv | grep -vE "^(UID|GID|no_proxy)" | while IFS='=' read -r key value; do
   echo "export $key='$(printf '%s' "$value" | sed "s/'/'\\\\''/g")'"
 done > /etc/profile.d/env_vars.sh
+
+# Handle DBus permissions
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
+export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+mkdir -p $XDG_RUNTIME_DIR
+chmod 700 $XDG_RUNTIME_DIR
 
 # Redirect cron logs to container stdout
 CRON_LOG=/var/log/cron.log

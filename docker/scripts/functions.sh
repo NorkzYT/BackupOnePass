@@ -4,6 +4,19 @@
 enter_2fa() {
     echo "Attempting to generate and enter 2FA code..."
 
+    # Ensure the 1Password window is active
+    WINDOW_ID=$(xdotool search --name "1Password")
+    if [ -n "$WINDOW_ID" ]; then
+        echo "Focusing 1Password window ID: $WINDOW_ID"
+        xdotool windowactivate "$WINDOW_ID"
+        sleep 0.5 # Allow time for focus
+    else
+        echo "Error: 1Password window not found."
+        echo "Listing all active window names:" # Added error debug output
+        xdotool search --onlyvisible --name ".*" getwindowname
+        return 1
+    fi
+
     # Generate a 2FA code using the secret key (if TOTP is used)
     TWOFA_CODE=$(oathtool --totp -b "$ONEPASSWORD_TOTP_SECRET")
     if [ -n "$TWOFA_CODE" ]; then

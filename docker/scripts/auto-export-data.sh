@@ -8,8 +8,11 @@ echo "Opening the export menu..."
 
 # Simulate pressing the down arrow key
 xdotool key Down
+sleep 0.5
 xdotool key Down
+sleep 0.5
 xdotool key Down
+sleep 0.5
 xdotool key Down
 
 # Click Enter
@@ -28,7 +31,9 @@ echo "Typing the secret key..."
 xdotool type "$ONEPASSWORD_PASSWORD"
 echo "Navigating through the export dialog..."
 xdotool key Tab
+sleep 0.5
 xdotool key Tab
+sleep 0.5
 xdotool key Tab
 echo "Initiating the export process..."
 xdotool key Return # Export Data
