@@ -54,7 +54,7 @@ jobs:
             org.opencontainers.image.licenses=GPL-3.0
 
       - name: 🔧 Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/amd64,linux/arm64
 
