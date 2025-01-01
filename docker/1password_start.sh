@@ -31,10 +31,6 @@ fi
 # -------------------------------------------------------------
 ### Non-Headless
 
-# Source the monitor script
-source "/backuponepass/scripts/monitor-1password-logs.sh"
-echo "Loaded monitor-1password-logs.sh..."
-
 echo "Starting 1Password Automation Script..."
 
 # Check if 1Password is already running
@@ -44,13 +40,14 @@ else
     # Start 1Password without sandboxing and send it to the background
     echo "Launching 1Password..."
     su "$USER" -c '1password --no-sandbox &'
-    sleep 6
-fi
+    sleep 5
+    python3 /backuponepass/scripts/monitor_logo_image.py
+    RESULT=$?
 
-# Monitor logs with a timeout of 120 seconds.
-if ! monitor_logs_for_line "Starting filesystem watcher for SSH agent configuration directories" 120; then
-    echo "Failed to detect unlock log line within timeout." >&2
-    exit 1
+    if [ $RESULT -ne 0 ]; then
+        echo "OnePassword Logo Image detection failed. Exiting."
+        exit 1
+    fi
 fi
 
 # Auto Login for 1Password.

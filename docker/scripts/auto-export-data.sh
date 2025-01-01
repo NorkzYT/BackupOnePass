@@ -2,8 +2,6 @@
 
 echo "Starting auto-export-data script..."
 
-source "/backuponepass/scripts/monitor-1password-logs.sh"
-
 echo "Opening the export menu..."
 
 # Simulate pressing the down arrow key
@@ -65,13 +63,16 @@ xdotool key Return
 echo "Waiting for a second to ensure the save location is confirmed..."
 sleep 1
 
-echo "Starting to monitor the 1Password log for the 'Finished export task' message..."
-if ! monitor_logs_for_current_line "Finished export task" 120; then
-    echo "'Finished export task' not found in logs. Checking again..."
-else
-    echo "'Finished export task' found in logs. Confirming export completion..."
-    sleep 1
-    xdotool key Return
+echo "Starting to monitor for 'Export Finished' image using GUI detection..."
+python3 /backuponepass/scripts/monitor_export_complete_image.py
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+    echo "Export completion detection failed. Exiting."
+    exit 1
 fi
+
+sleep 1
+xdotool key Return
 
 echo "Auto-export-data script completed."

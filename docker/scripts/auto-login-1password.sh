@@ -5,9 +5,6 @@ echo "Starting 1Password auto-login script..."
 source "/backuponepass/scripts/functions.sh"
 echo "Loaded functions.sh..."
 
-source "/backuponepass/scripts/monitor-1password-logs.sh"
-echo "Loaded monitor-1password-logs.sh..."
-
 echo "Searching for 1Password startup window..."
 # Try to find the 1Password first-time startup window
 FIRST_STARTUP=$(xdotool search --name "Welcome — 1Password" | head -1)
@@ -63,11 +60,19 @@ if [ -n "$FIRST_STARTUP" ]; then
     echo "Login details entered, waiting for potential MFA prompt..."
     sleep 4
 
-    if monitor_logs_for_line "Prompting user for MFA" 120; then
-        enter_2fa
-    else
-        echo "MFA prompt not detected. Will continue without MFA."
+    echo "Monitoring for 2FA prompt using image detection..."
+    python3 /backuponepass/scripts/monitor_2fa_image.py
+    RESULT=$?
+
+    if [ $RESULT -ne 0 ]; then
+        echo "2FA detection failed. Exiting."
+        exit 1
     fi
+
+    # Execute the 2FA entry if detection succeeds
+    echo "Entering 2FA..."
+    enter_2fa
+
 elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     echo "Detected lock screen window for subsequent login..."
 
@@ -83,14 +88,20 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
     xdotool key Return
     echo "Password submitted. Waiting for MFA prompt..."
 
-    # Step 3: Wait for MFA prompt in the logs
-    if monitor_logs_for_current_line "Prompting user for MFA" 120; then
-        echo "Detected MFA prompt. Proceeding with 2FA..."
-        xdotool key Return
-        enter_2fa
-    else
-        echo "No MFA prompt detected. Assuming unlock process is complete."
+    echo "Monitoring for 2FA prompt using image detection..."
+    python3 /backuponepass/scripts/monitor_2fa_image.py
+    RESULT=$?
+
+    if [ $RESULT -ne 0 ]; then
+        echo "2FA detection failed. Exiting."
+        exit 1
     fi
+
+    # Execute the 2FA entry if detection succeeds
+    xdotool key Return
+    echo "Entering 2FA..."
+    enter_2fa
+
 else
     echo "No lock screen or startup window detected. Exiting auto-login script."
     exit 1
