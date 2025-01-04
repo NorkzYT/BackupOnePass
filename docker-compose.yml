@@ -1,6 +1,6 @@
 services:
   backuponepass:
-    image: norkz/backuponepass:1.0.1
+    image: norkz/backuponepass:1.0.2
     container_name: backuponepass
     hostname: backuponepass
     environment:
