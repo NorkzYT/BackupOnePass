@@ -18,6 +18,7 @@ services:
     #   - "14000:4000" # NoMachine Remote desktop access (Only for development)
     volumes:
       - /dev/shm:/dev/shm # Shared memory
+      - /run/dbus/system_bus_socket:/host/run/dbus/system_bus_socket
       - /opt/appdata/backuponepass/data:/backuponepass/data # 1Password Data Output
     cap_add:
       - SYS_PTRACE
