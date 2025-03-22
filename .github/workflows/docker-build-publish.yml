@@ -44,6 +44,7 @@ jobs:
             ${{ env.DH_IMAGE }}
             ghcr.io/${{ env.GH_IMAGE }}
           tags: |
+            ${{ steps.package-version.outputs.version }}
             type=semver,event=tag,pattern={{version}}
           labels: |
             maintainer=NorkzYT
@@ -52,6 +53,7 @@ jobs:
             org.opencontainers.image.documentation=https://github.com/NorkzYT/BackupOnePass
             org.opencontainers.image.authors=Richard Lora
             org.opencontainers.image.licenses=GPL-3.0
+            org.opencontainers.image.version=${{ steps.package-version.outputs.version }}
 
       - name: 🔧 Set up QEMU
         uses: docker/setup-qemu-action@v3
