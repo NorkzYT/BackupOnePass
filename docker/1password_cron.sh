@@ -6,6 +6,9 @@
 echo "Starting auto-login..."
 bash /backuponepass/scripts/auto-login-1password.sh
 
+echo "Checking for unlock-more-easily prompt..."
+python3 /backuponepass/scripts/unlock_more_easily.py
+
 # Click the Kebap menu UI icon using OpenCV
 echo "Clicking the kebab icon..."
 python3 /backuponepass/scripts/click_kebap_icon.py

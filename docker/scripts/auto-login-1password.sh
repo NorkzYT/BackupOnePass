@@ -31,27 +31,27 @@ if [ -n "$FIRST_STARTUP" ]; then
     echo "Typing in Email..."
     xdotool type "$ONEPASSWORD_EMAIL"
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Return
     sleep 1
     echo "Typing in Secret key..."
     xdotool type "$ONEPASSWORD_SECRET_KEY"
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
     sleep 1
     echo "Typing in Password..."
     xdotool type "$ONEPASSWORD_PASSWORD"
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
     sleep 1
     xdotool key Tab # Skip over the "Use your Emergency Kit & Find your Secret Key"
@@ -83,7 +83,7 @@ elif [ -n "$LOCK_SCREEN_WINDOW_ID" ]; then
 
     # Step 2: Navigate to the submit button and submit the password
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Tab
     xdotool key Return
     echo "Password submitted. Waiting for MFA prompt..."

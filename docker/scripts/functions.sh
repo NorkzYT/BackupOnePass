@@ -9,7 +9,7 @@ enter_2fa() {
     if [ -n "$WINDOW_ID" ]; then
         echo "Focusing 1Password window ID: $WINDOW_ID"
         xdotool windowactivate "$WINDOW_ID"
-        sleep 0.5 # Allow time for focus
+        sleep 1 # Allow time for focus
     else
         echo "Error: 1Password window not found."
         echo "Listing all active window names:" # Added error debug output
@@ -29,12 +29,12 @@ enter_2fa() {
     # Enter the 2FA code
     echo "Entering the 2FA code..."
     xdotool type "$TWOFA_CODE"
-    sleep 0.5
+    sleep 1
 
     # Submit the 2FA code
     echo "Submitting the 2FA code..."
     xdotool key Tab
-    sleep 0.5
+    sleep 1
     xdotool key Return
 
     # Wait briefly to ensure the code is processed

@@ -24,6 +24,11 @@ if ! pgrep -x "Xvfb" >/dev/null; then
     sleep 2
 fi
 
+# Disable screen blanking and power management to avoid black screen in NoMachine
+echo "Disabling screen blanking and DPMS..."
+DISPLAY=:99 xset s off -dpms
+DISPLAY=:99 xset s noblank
+
 # -------------------------------------------------------------
 ### Launch 1Password Immediately
 echo "Starting 1Password Automation Script..."

@@ -1,4 +1,5 @@
 # Use the phusion baseimage for Ubuntu Jammy
+# https://hub.docker.com/r/phusion/baseimage
 FROM phusion/baseimage:jammy-1.0.4
 
 LABEL maintainer="NorkzYT richard@pcscorp.dev"
@@ -27,8 +28,7 @@ RUN apt-get update && \
 # Ensure that your requirements.txt is located at docker/config/requirements.txt
 COPY docker/config/requirements.txt /tmp/requirements.txt
 RUN pip3 install --upgrade pip && \
-    pip3 install -r /tmp/requirements.txt && \
-    python3 -c "import PIL; print('Pillow version:', PIL.__version__)"
+    pip3 install -r /tmp/requirements.txt
 
 # Setup additional dependencies: DBus and pulseaudio
 ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
