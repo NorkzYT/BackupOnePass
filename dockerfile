@@ -21,7 +21,7 @@ RUN chmod +x /backuponepass/config/*.sh && \
 # Install OS-level dependencies
 RUN apt-get update && \
     apt-get install -y sudo gedit locales curl gnupg2 lsb-release xdotool oathtool xvfb \
-    python3-opencv scrot dbus-x11 python3-pip && \
+    python3-opencv scrot dbus-x11 python3-pip x11-xserver-utils && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python packages globally from requirements.txt

@@ -2,7 +2,7 @@
 
 echo "Ensuring display remains active..."
 # Reinforce that blanking/DPMS is off before proceeding
-DISPLAY=:99 xset s off -dpms
+DISPLAY=:99 xset s off
 DISPLAY=:99 xset s noblank
 
 echo "Ensuring 1Password window is active..."

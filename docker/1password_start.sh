@@ -26,7 +26,7 @@ fi
 
 # Disable screen blanking and power management to avoid black screen in NoMachine
 echo "Disabling screen blanking and DPMS..."
-DISPLAY=:99 xset s off -dpms
+DISPLAY=:99 xset s off
 DISPLAY=:99 xset s noblank
 
 # -------------------------------------------------------------
