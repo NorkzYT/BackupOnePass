@@ -15,8 +15,11 @@ services:
       - ONEPASSWORD_SECRET_KEY=${BACKUP_ONE_PASS_ONEPASSWORD_SECRET_KEY:?error}
       - ONEPASSWORD_PASSWORD=${BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD:?error}
       - ONEPASSWORD_TOTP_SECRET=${BACKUP_ONE_PASS_ONEPASSWORD_TOTP_SECRET:?error}
+      - VNC_PASSWORD=${BACKUP_ONE_PASS_VNC_PASSWORD:?error}
+    # DEBUG Purposes:
     ports:
-      - "14000:4000" # NoMachine Remote desktop access w/protocol "NX"—(Only for development).
+      - "6080:6080" # noVNC HTML5 interface (access via browser)—noVNC Connection endpoint http://<IPv4>:6080/vnc.html
+      - "5900:5900" # raw VNC (optional)
     volumes:
       - /dev/shm:/dev/shm # Shared memory
       - /run/dbus/system_bus_socket:/host/run/dbus/system_bus_socket

@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Helper function to ensure the 1Password window is active
+ensure_window_active() {
+    WINDOW_ID=$(xdotool search --onlyvisible --name "1Password" | head -n 1)
+    if [ -n "$WINDOW_ID" ]; then
+        echo "Re-focusing 1Password window (ID: $WINDOW_ID)..."
+        # Use windowfocus instead of windowactivate
+        xdotool windowfocus "$WINDOW_ID"
+        xdotool windowraise "$WINDOW_ID"
+    else
+        echo "Warning: 1Password window not found during reactivation."
+    fi
+}
+
 # Function to enter 2FA code
 enter_2fa() {
     echo "Attempting to generate and enter 2FA code..."

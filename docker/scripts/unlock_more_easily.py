@@ -12,23 +12,32 @@ def take_screenshot():
     return cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
 
 
-def find_template(template_path, threshold=0.8):
+def find_template(template_path, threshold=0.7):
     print(f"Searching for template: {template_path}")
     template = cv2.imread(template_path, 0)
     if template is None:
         print(f"Template image at {template_path} could not be loaded.")
         return False
-    # Capture the current screen and convert to grayscale
+
     screenshot = take_screenshot()
     gray_screen = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
-    # Perform template matching
-    result = cv2.matchTemplate(gray_screen, template, cv2.TM_CCOEFF_NORMED)
-    if np.any(result >= threshold):
-        print("Template found!")
-        return True
-    else:
-        print("Template not found.")
-        return False
+
+    # Try multiple scales
+    scales = [0.9, 1.0, 1.1]
+    for scale in scales:
+        new_w = int(template.shape[1] * scale)
+        new_h = int(template.shape[0] * scale)
+        resized_template = cv2.resize(template, (new_w, new_h))
+
+        result = cv2.matchTemplate(gray_screen, resized_template, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(result >= threshold)
+
+        if len(loc[0]) > 0:
+            print("Template found at scale", scale)
+            return True
+
+    print("Template not found at any scale.")
+    return False
 
 
 if __name__ == "__main__":

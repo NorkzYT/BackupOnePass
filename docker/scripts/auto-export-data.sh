@@ -1,22 +1,5 @@
 #!/bin/bash
 
-echo "Ensuring display remains active..."
-# Reinforce that blanking/DPMS is off before proceeding
-DISPLAY=:99 xset s off
-DISPLAY=:99 xset s noblank
-
-echo "Ensuring 1Password window is active..."
-# Try to find the 1Password window and raise it
-WINDOW_ID=$(xdotool search --onlyvisible --name "1Password")
-if [ -n "$WINDOW_ID" ]; then
-    echo "1Password window found (ID: $WINDOW_ID). Activating..."
-    xdotool windowactivate "$WINDOW_ID"
-    xdotool windowraise "$WINDOW_ID"
-    sleep 1
-else
-    echo "Warning: 1Password window not found. Proceeding..."
-fi
-
 echo "Starting auto-export-data script..."
 
 echo "Opening the export menu..."
@@ -58,22 +41,22 @@ sleep 1
 ### Non-Headless
 
 # Go into the file directory to then save and start export process
-python3 /backuponepass/scripts/click_export_location.py
+# python3 /backuponepass/scripts/click_export_location.py
 
 # -------------------------------------------------------------
 
-### Headless
+# ### Headless
 
-# echo "Navigating to the address bar to type the save location..."
-# xdotool key Ctrl+l
-# sleep 1
+echo "Navigating to the address bar to type the save location..."
+xdotool key Ctrl+l
+sleep 1
 
-# echo "Typing the save location path..."
-# xdotool type "/backuponepass/data"
-# sleep 1
+echo "Typing the save location path..."
+xdotool type "/backuponepass/data"
+sleep 1
 
-# echo "Confirming the save location..."
-# xdotool key Return
+echo "Confirming the save location..."
+xdotool key Return
 
 # -------------------------------------------------------------
 
