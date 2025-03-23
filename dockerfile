@@ -47,6 +47,9 @@ RUN bash /backuponepass/config/install_nomachine.sh && \
 # Install 1Password
 RUN bash /backuponepass/config/install_1password.sh
 
+# Add 1Password binary directory to the PATH so that "1password" is found.
+ENV PATH="/opt/1Password:$PATH"
+
 # Expose the port used by NoMachine
 EXPOSE 4000
 
