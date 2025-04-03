@@ -16,6 +16,7 @@ services:
       - ONEPASSWORD_PASSWORD=${BACKUP_ONE_PASS_ONEPASSWORD_PASSWORD:?error}
       - ONEPASSWORD_TOTP_SECRET=${BACKUP_ONE_PASS_ONEPASSWORD_TOTP_SECRET:?error}
       - VNC_PASSWORD=${BACKUP_ONE_PASS_VNC_PASSWORD:?error}
+      - DEBUG_MODE=${DEBUG_MODE}
     # DEBUG Purposes:
     ports:
       - "6080:6080" # noVNC HTML5 interface (access via browser)—noVNC Connection endpoint http://<IPv4>:6080/vnc.html

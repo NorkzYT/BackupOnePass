@@ -1,7 +1,7 @@
 {
 	"name": "backuponepass",
 	"description": "Automatically backup your 1Password Data.",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"author": "NorkzYT",
 	"private": false,
 	"scripts": {

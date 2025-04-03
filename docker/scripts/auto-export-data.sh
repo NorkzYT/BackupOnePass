@@ -11,7 +11,6 @@ xdotool key Down
 sleep 1
 xdotool key Down
 sleep 1
-xdotool key Down
 
 # Click Enter
 xdotool key Return

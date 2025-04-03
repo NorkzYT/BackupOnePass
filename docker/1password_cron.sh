@@ -7,6 +7,10 @@
 echo "Starting auto-login..."
 bash /backuponepass/scripts/auto-login-1password.sh
 
+sleep 1
+xdotool key Return
+sleep 1
+
 echo "Checking for unlock-more-easily prompt..."
 python3 /backuponepass/scripts/unlock_more_easily.py
 
