@@ -1,97 +1,105 @@
 #!/bin/sh
+set -e
 
-# Create user and group, configure user settings
-groupadd -g "$GID" "$USER" || true
-useradd --create-home --no-log-init -u "$UID" -g "$GID" "$USER" || true # Ignore error if user exists
-usermod -aG sudo "$USER"
-echo "$USER:$PASSWORD" | chpasswd
-chsh -s /bin/bash "$USER"
+# -----------------------------------------------------------------------------
+# Environment / constants
+# -----------------------------------------------------------------------------
+export USER="${USER:-onepassword}" # keep old variable names
+export HOME="/home/${USER}"
+export DISPLAY=${DISPLAY:-:99}
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
+export XDG_RUNTIME_DIR="/tmp/runtime-${USER}"
 
-# Ensure the directory structure exists and set permissions
-mkdir -p /backuponepass/config /backuponepass/scripts /backuponepass/images
-chown -R "$USER":"$USER" /backuponepass
+# Create runtime dir for 1Password’s IPC
+mkdir -p "${XDG_RUNTIME_DIR}"
+chmod 700 "${XDG_RUNTIME_DIR}"
 
-# Ensure directories for 1Password exist
-mkdir -p /home/$USER/.config/1Password/logs
-touch /home/$USER/.config/1Password/logs/1Password_rCURRENT.log
-chown -R "$USER":"$USER" /home/$USER/.config/1Password
+# -----------------------------------------------------------------------------
+# Create helper user (but we will **not** switch to it)
+# -----------------------------------------------------------------------------
+groupadd -o -g "${GID:-1000}" "${USER}" 2>/dev/null || true
+useradd -o -u "${UID:-1000}" -g "${GID:-1000}" -M -s /bin/bash "${USER}" 2>/dev/null || true
 
-# Sync system time
+# make sure the expected paths exist
+mkdir -p /backuponepass /backuponepass/{config,scripts,images}
+mkdir -p "${HOME}/.config/1Password/logs"
+chown -R "${USER}:${USER}" /backuponepass "${HOME}"
+
+# -----------------------------------------------------------------------------
+# System time sync (root only)
+# -----------------------------------------------------------------------------
 apt-get update && apt-get install -y ntpdate
-ntpdate -s time.nist.gov
+ntpdate -s time.nist.gov || true
 
-# Start DBus (x11docker or external display provider must mount the DBus socket)
-if [ ! -S /host/run/dbus/system_bus_socket ]; then
-  echo "DBus socket not found. Please ensure it is mounted correctly."
+# -----------------------------------------------------------------------------
+# DBus (host socket is bind‑mounted)
+# -----------------------------------------------------------------------------
+[ -S /host/run/dbus/system_bus_socket ] || {
+  echo "DBus socket missing"
   exit 1
-fi
+}
 /etc/init.d/dbus start
 
-# Export environment variables for cron with proper escaping
-printenv | grep -vE "^(UID|GID|no_proxy)" | while IFS='=' read -r key value; do
-  echo "export $key='$(printf '%s' "$value" | sed "s/'/'\\''/g")'"
-done >/etc/profile.d/env_vars.sh
-
-# Ensure DISPLAY is included for GUI automation
-echo "export DISPLAY=:99" >>/etc/profile.d/env_vars.sh
-
-# Set DBus and runtime environment variables
-export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
-export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
-mkdir -p $XDG_RUNTIME_DIR
-chmod 700 $XDG_RUNTIME_DIR
-
-# Optionally start Xvfb if DISPLAY is not provided (x11docker or host may supply the display)
-if [ -z "$DISPLAY" ]; then
-  export DISPLAY=:99
-  echo "DISPLAY set to $DISPLAY"
-fi
-
-if ! pgrep -x "Xvfb" >/dev/null; then
-  echo "Starting Xvfb on display $DISPLAY..."
-  Xvfb $DISPLAY -screen 0 1920x1080x24 &
+# -----------------------------------------------------------------------------
+# Xvfb headless display
+# -----------------------------------------------------------------------------
+if ! pgrep -x Xvfb >/dev/null 2>&1; then
+  echo "Starting Xvfb on ${DISPLAY}"
+  Xvfb "${DISPLAY}" -screen 0 1920x1080x24 &
   sleep 2
 fi
 
-# --- Start VNC server for display sharing with password ---
-# Check if VNC_PASSWORD is set in the environment (provided from .env file)
-if [ -z "$VNC_PASSWORD" ]; then
-  echo "VNC_PASSWORD environment variable not set. Exiting for security reasons."
+# -----------------------------------------------------------------------------
+# VNC + noVNC (root)
+# -----------------------------------------------------------------------------
+[ -z "${VNC_PASSWORD}" ] && {
+  echo "VNC_PASSWORD not set"
   exit 1
+}
+
+x11vnc -storepasswd "${VNC_PASSWORD}" /tmp/vnc_pass
+x11vnc -display "${DISPLAY}" \
+  -rfbport 5900 -rfbauth /tmp/vnc_pass \
+  -listen 0.0.0.0 -xkb -forever -bg
+
+if ! lsof -Pi :6080 -sTCP:LISTEN -t >/dev/null 2>&1; then
+  websockify --web=/usr/share/novnc 6080 localhost:5900 &
 fi
 
-echo "Storing VNC password..."
-# Store the VNC password (hashed) in /tmp/vnc_pass using x11vnc's built-in mechanism.
-x11vnc -storepasswd "$VNC_PASSWORD" /tmp/vnc_pass
+# -----------------------------------------------------------------------------
+# Export all env vars for cron (properly quoted)
+# -----------------------------------------------------------------------------
+printenv | grep -vE "^(UID|GID|no_proxy)" |
+  while IFS='=' read -r k v; do
+    printf "export %s='%s'\n" "$k" "$(printf '%s' "$v" | sed "s/'/'\\\\''/g")"
+  done >/etc/profile.d/env_vars.sh
+echo "export DISPLAY=${DISPLAY}" >>/etc/profile.d/env_vars.sh
 
-echo "Starting x11vnc with password authentication..."
-# Start x11vnc on the current DISPLAY, allowing unlimited reconnections (-forever),
-# using the stored password (-rfbauth), and listening on all interfaces.
-x11vnc -display $DISPLAY -forever -rfbauth /tmp/vnc_pass -listen 0.0.0.0 -xkb &
-
-echo "Starting noVNC (websockify)..."
-# Start websockify to convert the VNC connection (port 5900) to WebSockets on port 6080.
-# --web points to the directory containing the noVNC HTML files (typically /usr/share/novnc)
-websockify --web=/usr/share/novnc 6080 localhost:5900 &
-
-# Redirect cron logs to container stdout
+# -----------------------------------------------------------------------------
+# Redirect cron log
+# -----------------------------------------------------------------------------
 CRON_LOG=/var/log/cron.log
-touch $CRON_LOG
-chmod 0644 $CRON_LOG
+touch "${CRON_LOG}" && chmod 0644 "${CRON_LOG}"
 
-# Always start the immediate launch script for display and initial GUI.
+# -----------------------------------------------------------------------------
+# 1Password bootstrap (runs as **root**, still launches GUI with --no‑sandbox)
+# -----------------------------------------------------------------------------
 bash /backuponepass/1password_start.sh
 
-# If DEBUG_MODE is enabled, run the automation script immediately.
-if [ "$DEBUG_MODE" = "true" ]; then
-  echo "DEBUG_MODE enabled: Running 1password_cron.sh immediately."
+# DEBUG option
+if [ "${DEBUG_MODE}" = "true" ]; then
+  echo "DEBUG_MODE: running automation once."
   bash /backuponepass/1password_cron.sh
-elif [ -n "$BACKUP_SCHEDULE" ]; then
-  # If a backup schedule is provided, configure cron.
-  # Enforce minimum cron interval of 2 minutes
-  if echo "$BACKUP_SCHEDULE" | grep -Eq '^\*/[2-9]|^[2-9]|[1-5][0-9]'; then
-    echo "Using custom BACKUP_SCHEDULE: $BACKUP_SCHEDULE"
-    echo "$BACKUP_SCHEDULE . /etc/profile.d/env_vars.sh && su \"$USER\" -c '/bin/bash /backuponepass/1password_cron.sh' >> /var/log/cron.log 2>&1" >/etc/cron.d/backup_schedule
+fi
+
+# -----------------------------------------------------------------------------
+# Cron schedule (also as root)
+# -----------------------------------------------------------------------------
+if [ -n "${BACKUP_SCHEDULE}" ]; then
+  if echo "${BACKUP_SCHEDULE}" | grep -Eq '^\*/[2-9]|^[2-9]|[1-5][0-9]'; then
+    echo "Using BACKUP_SCHEDULE: ${BACKUP_SCHEDULE}"
+    echo "${BACKUP_SCHEDULE} . /etc/profile.d/env_vars.sh && /bin/bash /backuponepass/1password_cron.sh >>${CRON_LOG} 2>&1" \
+      >/etc/cron.d/backup_schedule
     chmod 0644 /etc/cron.d/backup_schedule
     crontab /etc/cron.d/backup_schedule
     service cron start
@@ -101,5 +109,7 @@ elif [ -n "$BACKUP_SCHEDULE" ]; then
   fi
 fi
 
-# Keep the container running and logging
-tail -f $CRON_LOG
+# -----------------------------------------------------------------------------
+# Keep the container alive
+# -----------------------------------------------------------------------------
+exec tail -n+0 -F "${CRON_LOG}"

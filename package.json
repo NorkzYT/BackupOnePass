@@ -1,7 +1,7 @@
 {
 	"name": "backuponepass",
 	"description": "Automatically backup your 1Password Data.",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"author": "NorkzYT",
 	"private": false,
 	"scripts": {
@@ -21,7 +21,7 @@
 		"@commitlint/cli": "^19.0.0",
 		"@commitlint/config-conventional": "^19.0.0",
 		"husky": "^9.0.0",
-		"opencommit": "^3.0.4"	
+		"opencommit": "^3.0.4"
 	},
 	"engines": {
 		"npm": ">=7.10.0",

@@ -5,7 +5,6 @@
 echo "Starting auto-login..."
 bash /backuponepass/scripts/auto-login-1password.sh
 
-# [Other steps that might run synchronously]
 sleep 1
 xdotool key Return
 sleep 1

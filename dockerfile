@@ -1,80 +1,68 @@
-# Use the phusion baseimage for Ubuntu Jammy
-# https://hub.docker.com/r/phusion/baseimage
+# -----------------------------------------------------------------------------
+# BackupOnePass – headless 1Password backup container (Ubuntu 22.04 Jammy)
+# -----------------------------------------------------------------------------
 FROM phusion/baseimage:jammy-1.0.4
 
-LABEL maintainer="NorkzYT richard@pcscorp.dev"
+LABEL maintainer="NorkzYT <richard@pcscorp.dev>"
 
-ENV DEBIAN_FRONTEND=noninteractive
+# -----------------------------------------------------------------------------
+# Global environment
+# -----------------------------------------------------------------------------
+ENV DEBIAN_FRONTEND=noninteractive \
+    APP_USER=onepassword \
+    APP_GROUP=onepassword
 
-# -------------------------------------------------------------
-# Create a non-root user 'onepassword' for running 1Password
-RUN useradd -m -s /bin/bash onepassword && \
-    echo "onepassword:password" | chpasswd && \
-    chown -R onepassword:onepassword /home/onepassword
+# -----------------------------------------------------------------------------
+# Create the application user once, at build‑time
+# -----------------------------------------------------------------------------
+RUN groupadd -g 1000 "${APP_GROUP}" \
+    && useradd  -m -u 1000 -g "${APP_GROUP}" -s /bin/bash "${APP_USER}" \
+    && passwd   -d "${APP_USER}"
 
-# Set the USER environment variable to our non-root user
-ENV USER=onepassword
+# -----------------------------------------------------------------------------
+# Copy project tree and preserve script permissions
+# -----------------------------------------------------------------------------
+COPY docker/ /backuponepass/
+RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
+    && find /backuponepass -type f -name "*.py" -exec chmod +x {} \;
 
-# -------------------------------------------------------------
-# Copy all required files into the container
-COPY docker/1password_start.sh /backuponepass/1password_start.sh
-COPY docker/1password_cron.sh /backuponepass/1password_cron.sh
-COPY docker/config /backuponepass/config
-COPY docker/scripts /backuponepass/scripts
-COPY docker/images /backuponepass/images
+# -----------------------------------------------------------------------------
+# System packages
+# -----------------------------------------------------------------------------
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        sudo gedit locales curl gnupg2 lsb-release \
+        xdotool oathtool xvfb x11-xserver-utils \
+        python3-opencv scrot python3-pip dbus-x11 \
+        pulseaudio cron x11vnc novnc websockify \
+        libgbm1 lsof \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set execute permissions on shell and Python scripts
-RUN chmod +x /backuponepass/config/*.sh && \
-    chmod +x /backuponepass/scripts/*.sh && \
-    chmod +x /backuponepass/scripts/*.py
-
-# -------------------------------------------------------------
-# Install OS-level dependencies
-RUN apt-get update && \
-    apt-get install -y sudo gedit locales curl gnupg2 lsb-release xdotool oathtool xvfb \
-    python3-opencv scrot dbus-x11 python3-pip x11-xserver-utils && \
-    rm -rf /var/lib/apt/lists/*
-
-# -------------------------------------------------------------
-# Install Python dependencies from requirements.txt
+# -----------------------------------------------------------------------------
+# Python packages
+# -----------------------------------------------------------------------------
 COPY docker/config/requirements.txt /tmp/requirements.txt
-RUN pip3 install --upgrade pip && \
-    pip3 install -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir -r /tmp/requirements.txt
 
-# -------------------------------------------------------------
-# Setup additional dependencies: DBus and pulseaudio
-ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
-RUN apt-get update && apt-get install -y pulseaudio && mkdir -p /var/run/dbus && \
-    rm -rf /var/lib/apt/lists/*
+# -----------------------------------------------------------------------------
+# 1Password installation
+# -----------------------------------------------------------------------------
+RUN /backuponepass/config/install_1password.sh
+ENV PATH="/opt/1Password:${PATH}"
 
-# -------------------------------------------------------------
-# Install cron for scheduling automation tasks
-RUN apt-get update && apt-get install -y cron
+# -----------------------------------------------------------------------------
+# Prepare HOME
+# -----------------------------------------------------------------------------
+RUN mkdir -p /home/${APP_USER}/.config \
+    && chown -R ${APP_USER}:${APP_GROUP} /home/${APP_USER}
 
-# -------------------------------------------------------------
-# Install 1Password
-RUN bash /backuponepass/config/install_1password.sh
-
-# Add 1Password binary directory to the PATH so that "1password" is found.
-ENV PATH="/opt/1Password:$PATH"
-
-# -------------------------------------------------------------
-# Ensure proper permissions for configuration directories
-RUN mkdir -p /home/onepassword/.config && \
-    chown -R onepassword:onepassword /home/onepassword/.config
-
-# Create a secure XDG_RUNTIME_DIR (required by some applications) with 700 permissions
-RUN mkdir -p /run/user/1000 && chmod 700 /run/user/1000
-ENV XDG_RUNTIME_DIR=/run/user/1000
-
-# -------------------------------------------------------------
-# --- Install VNC server and HTML5 frontend packages ---
-RUN apt-get update && apt-get install -y x11vnc novnc websockify && \
-    rm -rf /var/lib/apt/lists/*
-
-# Expose ports for VNC (5900) and noVNC (6080)
+# -----------------------------------------------------------------------------
+# VNC / noVNC
+# -----------------------------------------------------------------------------
 EXPOSE 5900 6080
 
-# -------------------------------------------------------------
-# Set the container entrypoint
+# -----------------------------------------------------------------------------
+# Entrypoint (kept as root – switches user internally)
+# -----------------------------------------------------------------------------
 ENTRYPOINT ["/backuponepass/config/entrypoint.sh"]
