@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #############################
 # 1Password Installer Script
@@ -45,7 +45,7 @@ echo "Installing to ${INSTALL_DIR}..."
 mkdir -p "${INSTALL_DIR}"
 # Move contents of extracted dir (which is likely named "1password-8.10.75") into install dir
 EXTRACTED_DIR=$(tar -tzf "${FILE}" | head -n1 | cut -f1 -d"/")
-mv "${EXTRACTED_DIR}"/* "${INSTALL_DIR}"
+mv 1password-*/* "${INSTALL_DIR}"
 
 echo "Running post-install script..."
 "${INSTALL_DIR}/after-install.sh"
