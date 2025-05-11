@@ -1,28 +1,57 @@
 #!/bin/bash
 
-# Specific download of 1Password version links:
-# https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/1password-gui/sources.json
-# https://releases.1password.com/linux/beta/
+#############################
+# 1Password Installer Script
+#############################
 
-# Detect architecture and download the appropriate version of 1Password (Stable)
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants: update here for new releases
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+VERSION=$(jq -r '.version' "${SCRIPT_DIR}/docker/config/version.json")
+RELEASE_DATE=$(jq -r '.release_date' "${SCRIPT_DIR}/version.json")
+BASE_URL="https://downloads.1password.com/linux/tar/stable"
+INSTALL_DIR="/opt/1Password"
+# ──────────────────────────────────────────────────────────────────────────────
+
+echo "Installing 1Password v${VERSION} (released on ${RELEASE_DATE})..."
+
+# Detect architecture
 ARCH=$(dpkg --print-architecture)
-if [ "$ARCH" = "amd64" ]; then
-    FILE="1password-8.10.70.x64.tar.gz"
-    curl -sSO https://downloads.1password.com/linux/tar/stable/x86_64/$FILE
-elif [ "$ARCH" = "arm64" ]; then
-    FILE="1password-8.10.70.arm64.tar.gz"
-    curl -sSO https://downloads.1password.com/linux/tar/stable/aarch64/$FILE
-else
-    echo "Unsupported architecture"
+case "$ARCH" in
+amd64)
+    PLATFORM="x86_64"
+    ;;
+arm64)
+    PLATFORM="aarch64"
+    ;;
+*)
+    echo "Error: Unsupported architecture '$ARCH'." >&2
     exit 1
-fi
+    ;;
+esac
 
-# Extract and move the files
-tar -xf "$FILE"
-mkdir -p /opt/1Password
-mv 1password-*/* /opt/1Password
-/opt/1Password/after-install.sh
-rm "$FILE"
+# Compose download filename and URL
+FILE="1password-${VERSION}.${ARCH}.tar.gz"
+DOWNLOAD_URL="${BASE_URL}/${PLATFORM}/${FILE}"
 
-# April 2 2025
-# 1Password version 8.10.70 (Supported)
+echo "Downloading ${DOWNLOAD_URL}..."
+curl -fSL --retry 3 --retry-delay 5 -o "${FILE}" "${DOWNLOAD_URL}"
+
+echo "Extracting ${FILE}..."
+tar -xf "${FILE}"
+
+echo "Installing to ${INSTALL_DIR}..."
+mkdir -p "${INSTALL_DIR}"
+# Move contents of extracted dir (which is likely named "1password-8.10.75") into install dir
+EXTRACTED_DIR=$(tar -tzf "${FILE}" | head -n1 | cut -f1 -d"/")
+mv "${EXTRACTED_DIR}"/* "${INSTALL_DIR}"
+
+echo "Running post-install script..."
+"${INSTALL_DIR}/after-install.sh"
+
+# Clean up
+echo "Cleaning up..."
+rm -f "${FILE}"
+
+echo "1Password v${VERSION} installed successfully in ${INSTALL_DIR}."
