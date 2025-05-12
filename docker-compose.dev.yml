@@ -7,8 +7,6 @@ services:
     environment:
       - USER=${BACKUP_ONE_PASS_USER:?error}
       - PASSWORD=${BACKUP_ONE_PASS_PASSWORD:?error}
-      - GID=${BACKUP_ONE_PASS_GID:?error}
-      - UID=${BACKUP_ONE_PASS_UID:?error}
       - TZ=${BACKUP_ONE_PASS_TZ:?error}
       - BACKUP_SCHEDULE=${BACKUP_SCHEDULE:?error}
       - ONEPASSWORD_EMAIL=${BACKUP_ONE_PASS_ONEPASSWORD_EMAIL:?error}

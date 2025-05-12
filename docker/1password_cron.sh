@@ -36,6 +36,9 @@ echo "Account sync completed. Proceeding with export..."
 echo "Exporting 1Password data..."
 bash /backuponepass/scripts/auto-export-data.sh
 
+echo "🔧 Adjusting permissions on exported files to 660"
+find /backuponepass/data -type f -exec chmod 660 {} \; || true
+
 echo "Locking 1Password..."
 bash /backuponepass/scripts/lock-1password.sh
 

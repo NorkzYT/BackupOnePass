@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# ensure that any files created by child processes get mode 660 (rw-rw----)
+umask 0007
+
 # -----------------------------------------------------------------------------
 # Environment / constants
 # -----------------------------------------------------------------------------
@@ -17,8 +20,8 @@ chmod 700 "${XDG_RUNTIME_DIR}"
 # -----------------------------------------------------------------------------
 # Create helper user (but we will **not** switch to it)
 # -----------------------------------------------------------------------------
-groupadd -o -g "${GID:-1000}" "${USER}" 2>/dev/null || true
-useradd -o -u "${UID:-1000}" -g "${GID:-1000}" -M -s /bin/bash "${USER}" 2>/dev/null || true
+groupadd -o -g "1000" "${USER}" 2>/dev/null || true
+useradd -o -u "1000" -g "1000" -M -s /bin/bash "${USER}" 2>/dev/null || true
 
 # make sure the expected paths exist
 mkdir -p /backuponepass /backuponepass/{config,scripts,images}
