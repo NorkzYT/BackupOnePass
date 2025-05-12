@@ -31,7 +31,7 @@ RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
 # -----------------------------------------------------------------------------
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        sudo gedit locales curl gnupg2 lsb-release \
+        jq sudo gedit locales curl gnupg2 lsb-release \
         xdotool oathtool xvfb x11-xserver-utils \
         python3-opencv scrot python3-pip dbus-x11 \
         pulseaudio cron x11vnc novnc websockify \

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #############################
 # 1Password Installer Script
@@ -7,8 +7,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants: update here for new releases
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-VERSION=$(jq -r '.version' "${SCRIPT_DIR}/docker/config/version.json")
+VERSION=$(jq -r '.version' "${SCRIPT_DIR}/version.json")
 RELEASE_DATE=$(jq -r '.release_date' "${SCRIPT_DIR}/version.json")
 BASE_URL="https://downloads.1password.com/linux/tar/stable"
 INSTALL_DIR="/opt/1Password"
@@ -16,14 +15,16 @@ INSTALL_DIR="/opt/1Password"
 
 echo "Installing 1Password v${VERSION} (released on ${RELEASE_DATE})..."
 
-# Detect architecture
+# 1) Detect architecture & set URL path + filename suffix
 ARCH=$(dpkg --print-architecture)
 case "$ARCH" in
 amd64)
     PLATFORM="x86_64"
+    SUFFIX="x64"
     ;;
 arm64)
     PLATFORM="aarch64"
+    SUFFIX="arm64"
     ;;
 *)
     echo "Error: Unsupported architecture '$ARCH'." >&2
@@ -31,27 +32,34 @@ arm64)
     ;;
 esac
 
-# Compose download filename and URL
-FILE="1password-${VERSION}.${ARCH}.tar.gz"
+# 2) Build URL & filename
+FILE="1password-${VERSION}.${SUFFIX}.tar.gz"
 DOWNLOAD_URL="${BASE_URL}/${PLATFORM}/${FILE}"
 
-echo "Downloading ${DOWNLOAD_URL}..."
+# 3) Download
+echo "Downloading ${DOWNLOAD_URL}…"
 curl -fSL --retry 3 --retry-delay 5 -o "${FILE}" "${DOWNLOAD_URL}"
 
-echo "Extracting ${FILE}..."
-tar -xf "${FILE}"
+# 4) Extract into temp dir
+TMPDIR=$(mktemp -d)
+echo "Extracting ${FILE} into ${TMPDIR}…"
+tar -xf "${FILE}" -C "${TMPDIR}"
 
-echo "Installing to ${INSTALL_DIR}..."
+# 5) Prepare a fresh install dir
+echo "Preparing ${INSTALL_DIR}…"
+rm -rf "${INSTALL_DIR}"
 mkdir -p "${INSTALL_DIR}"
-# Move contents of extracted dir (which is likely named "1password-8.10.75") into install dir
-EXTRACTED_DIR=$(tar -tzf "${FILE}" | head -n1 | cut -f1 -d"/")
-mv 1password-*/* "${INSTALL_DIR}"
 
-echo "Running post-install script..."
-"${INSTALL_DIR}/after-install.sh"
+# 6) Move the real payload (find its root under TMPDIR)
+EXTRACTED_ROOT=$(find "${TMPDIR}" -mindepth 1 -maxdepth 1 -type d | head -n1)
+echo "Moving files from ${EXTRACTED_ROOT} to ${INSTALL_DIR}…"
+mv "${EXTRACTED_ROOT}"/* "${INSTALL_DIR}"
 
-# Clean up
-echo "Cleaning up..."
-rm -f "${FILE}"
+# 7) Cleanup temp + archive
+rm -rf "${TMPDIR}" "${FILE}"
 
-echo "1Password v${VERSION} installed successfully in ${INSTALL_DIR}."
+# 8) Run post-install hook
+echo "Running post-install script…"
+/opt/1Password/after-install.sh
+
+echo "✅ 1Password v${VERSION} installed successfully in ${INSTALL_DIR}."
