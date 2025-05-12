@@ -4,7 +4,7 @@ set -e
 # -----------------------------------------------------------------------------
 # Environment / constants
 # -----------------------------------------------------------------------------
-export USER="${USER:-onepassword}" # keep old variable names
+export USER="${USER:-onepassword}"
 export HOME="/home/${USER}"
 export DISPLAY=${DISPLAY:-:99}
 export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
