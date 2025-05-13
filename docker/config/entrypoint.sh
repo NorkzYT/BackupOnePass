@@ -71,11 +71,7 @@ x11vnc -display "${DISPLAY}" \
   -listen 0.0.0.0 -xkb -forever -bg
 
 if ! lsof -Pi :6080 -sTCP:LISTEN -t >/dev/null 2>&1; then
-  # start noVNC in view-only mode
-  /usr/share/novnc/utils/launch.sh \
-    --vnc localhost:5900 \
-    --listen 6080 \
-    --view-only &
+  websockify --web=/usr/share/novnc 6080 localhost:5900 &
 fi
 
 # -----------------------------------------------------------------------------
