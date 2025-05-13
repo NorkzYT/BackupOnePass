@@ -1,59 +1,90 @@
 #!/bin/bash
 
-# Helper function to ensure the 1Password window is active
-ensure_window_active() {
-    WINDOW_ID=$(xdotool search --onlyvisible --name "1Password" | head -n 1)
-    if [ -n "$WINDOW_ID" ]; then
-        echo "Re-focusing 1Password window (ID: $WINDOW_ID)..."
-        # Use windowfocus instead of windowactivate
-        xdotool windowfocus "$WINDOW_ID"
-        xdotool windowraise "$WINDOW_ID"
-    else
-        echo "Warning: 1Password window not found during reactivation."
+# ─── Helpers ────────────────────────────────────────────────────────────────
+
+# Generate and echo a TOTP code
+generate_2fa_code() {
+    CODE=$(oathtool --totp -b "$ONEPASSWORD_TOTP_SECRET")
+    if [ -z "$CODE" ]; then
+        echo "Error: failed to generate 2FA code." >&2
+        return 1
     fi
+    echo "$CODE"
 }
 
-# Function to enter 2FA code
-enter_2fa() {
-    echo "Attempting to generate and enter 2FA code..."
-
-    # Ensure the 1Password window is active
-    WINDOW_ID=$(xdotool search --name "1Password")
-    if [ -n "$WINDOW_ID" ]; then
-        echo "Focusing 1Password window ID: $WINDOW_ID"
-        xdotool windowactivate "$WINDOW_ID"
-        sleep 1 # Allow time for focus
-    else
-        echo "Error: 1Password window not found."
-        echo "Listing all active window names:" # Added error debug output
+# Focus & raise the 1Password main window
+activate_1password_window() {
+    ID=$(xdotool search --onlyvisible --name "1Password" | head -1)
+    if [ -z "$ID" ]; then
+        echo "Error: 1Password window not found." >&2
         xdotool search --onlyvisible --name ".*" getwindowname
         return 1
     fi
+    echo "Focusing 1Password window (ID: $ID)…"
+    xdotool windowfocus "$ID"
+    xdotool windowraise "$ID"
+    sleep 0.5
+}
 
-    # Generate a 2FA code using the secret key (if TOTP is used)
-    TWOFA_CODE=$(oathtool --totp -b "$ONEPASSWORD_TOTP_SECRET")
-    if [ -n "$TWOFA_CODE" ]; then
-        echo "2FA code generated: $TWOFA_CODE"
+# Default entry: type code + Tab+Return twice
+enter_2fa_default() {
+    local CODE=$1
+    echo "Entering 2FA code…"
+    xdotool type "$CODE"
+    sleep 0.5
+    echo "Submitting…"
+    xdotool key Tab
+    sleep 0.5
+    xdotool key Return
+    sleep 1
+    xdotool key Return
+    echo "✅ 2FA default flow complete."
+}
+
+# “Method option” entry: Tab → type → Tab+Return twice
+enter_2fa_method_option() {
+    local CODE=$1
+    echo "Using auth-method option…"
+    xdotool key Tab
+    sleep 0.5
+    echo "Typing code…"
+    xdotool type "$CODE"
+    sleep 0.5
+    echo "Submitting option flow…"
+    xdotool key Tab
+    sleep 0.5
+    xdotool key Return
+    sleep 1
+    xdotool key Return
+    echo "✅ 2FA option flow complete."
+}
+
+# ─── Orchestrator ──────────────────────────────────────────────────────────
+
+handle_2fa() {
+    echo "Monitoring for 2FA prompt…"
+    python3 /backuponepass/scripts/monitor_2fa_image.py ||
+        {
+            echo "2FA prompt not found."
+            return 1
+        }
+
+    echo "Monitoring for 2FA-method-option prompt…"
+    if timeout 5s python3 /backuponepass/scripts/monitor_2fa_authentiation_method_option_image.py; then
+        METHOD_OK=0
     else
-        echo "Error: Failed to generate 2FA code."
-        return 1
+        METHOD_OK=1
     fi
 
-    # Enter the 2FA code
-    echo "Entering the 2FA code..."
-    xdotool type "$TWOFA_CODE"
-    sleep 1
+    echo "Generating 2FA code…"
+    CODE=$(generate_2fa_code) || return 1
+    activate_1password_window || return 1
 
-    # Submit the 2FA code
-    echo "Submitting the 2FA code..."
-    xdotool key Tab
-    sleep 1
-    xdotool key Return
+    if [ $METHOD_OK -eq 0 ]; then
+        enter_2fa_method_option "$CODE"
+    else
+        enter_2fa_default "$CODE"
+    fi
 
-    # Wait briefly to ensure the code is processed
-    echo "Waiting for confirmation of 2FA submission..."
-    sleep 2
-    xdotool key Return
-
-    echo "2FA process completed."
+    return 0
 }
