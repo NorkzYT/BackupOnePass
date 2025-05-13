@@ -36,6 +36,7 @@ RUN apt-get update \
         python3-opencv scrot python3-pip dbus-x11 \
         pulseaudio cron x11vnc novnc websockify \
         libgbm1 lsof \
+        openbox \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------

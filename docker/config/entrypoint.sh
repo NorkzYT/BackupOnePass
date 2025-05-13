@@ -52,6 +52,11 @@ if ! pgrep -x Xvfb >/dev/null 2>&1; then
   sleep 2
 fi
 
+# Start a minimal window manager so focus/activate actually work
+echo "Starting Openbox window manager…"
+openbox &
+sleep 1
+
 # -----------------------------------------------------------------------------
 # VNC + noVNC (root)
 # -----------------------------------------------------------------------------
