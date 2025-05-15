@@ -3,7 +3,7 @@ name: Test Docker Build
 on:
   pull_request:
     branches:
-      - "bump-1password-*"
+      - main
   workflow_dispatch:
 
 jobs:
