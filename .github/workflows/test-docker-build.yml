@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "Building with version ${{ steps.read_version.outputs.VERSION }}…"
           docker build \
-            --file BackupOnePass/dockerfile \
+            --file dockerfile \
             --build-arg VERSION="${{ steps.read_version.outputs.VERSION }}" \
             --tag backuponepass:test .
 
