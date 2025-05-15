@@ -1,0 +1,32 @@
+name: Test Docker Build
+
+on:
+  pull_request:
+    branches:
+      - "bump-1password-*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Read version from manifest
+        id: read_version
+        run: |
+          echo "VERSION=$(jq -r .version docker/config/version.json)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          echo "Building with version ${{ steps.read_version.outputs.VERSION }}…"
+          docker build \
+            --file BackupOnePass/dockerfile \
+            --build-arg VERSION="${{ steps.read_version.outputs.VERSION }}" \
+            --tag backuponepass:test .
+
+      - name: (optional) Run smoke-tests inside container
+        run: |
+          # e.g. verify `1password --version` outputs the expected string
+          docker run --rm backuponepass:test 1password --version | grep "${{ steps.read_version.outputs.VERSION }}"
