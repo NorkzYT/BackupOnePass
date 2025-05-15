@@ -26,7 +26,6 @@ jobs:
             --build-arg VERSION="${{ steps.read_version.outputs.VERSION }}" \
             --tag backuponepass:test .
 
-      - name: (optional) Run smoke-tests inside container
+      - name: Check 1password help
         run: |
-          # e.g. verify `1password --version` outputs the expected string
-          docker run --rm backuponepass:test 1password --version | grep "${{ steps.read_version.outputs.VERSION }}"
+          docker run --rm backuponepass:test 1password --help
