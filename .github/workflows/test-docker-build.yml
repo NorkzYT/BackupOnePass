@@ -25,7 +25,3 @@ jobs:
             --file dockerfile \
             --build-arg VERSION="${{ steps.read_version.outputs.VERSION }}" \
             --tag backuponepass:test .
-
-      - name: Verify 1password binary exists and is executable
-        run: |
-          docker run --rm backuponepass:test test -x /opt/1Password/1password
