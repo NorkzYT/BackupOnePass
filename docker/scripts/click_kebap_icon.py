@@ -4,6 +4,8 @@ import subprocess
 import time
 from PIL import ImageGrab
 
+KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template_white.png"
+
 
 def take_screenshot():
     print("Taking a screenshot...")
@@ -12,11 +14,26 @@ def take_screenshot():
     return cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
 
 
+def activate_window(name="1Password"):
+    # find the first visible window whose title contains “1Password”
+    win = (
+        subprocess.check_output(["xdotool", "search", "--onlyvisible", "--name", name])
+        .splitlines()[0]
+        .strip()
+    )
+    subprocess.call(["xdotool", "windowactivate", win])
+    # give it a moment
+    time.sleep(0.2)
+
+
 def click_location(center_x, center_y):
     print(f"Moving to coordinates: ({center_x}, {center_y})")
     subprocess.call(["xdotool", "mousemove", str(center_x), str(center_y)])
-    print(f"Clicking at coordinates: ({center_x}, {center_y})")
-    subprocess.call(["xdotool", "click", "1"])
+    print("Pressing mouse down…")
+    subprocess.call(["xdotool", "mousedown", "1"])
+    time.sleep(0.05)
+    print("Releasing mouse…")
+    subprocess.call(["xdotool", "mouseup", "1"])
 
 
 def find_button_and_click(template_path):
@@ -56,18 +73,18 @@ def find_button_and_click(template_path):
 if __name__ == "__main__":
     print("Starting the process to find and click the kebap icon...")
 
-    time.sleep(4)  # Give the UI some time to be ready
-    
-    # The path to the template images
-    KEBAP_ICON_TEMPLATE_PATH = "/backuponepass/images/button_template_white.png"
+    time.sleep(4)  # let the UI settle
+    activate_window("1Password")
 
-    # Click the Kebap icon button
-    print("Looking for the initial button...")
-    button_coords = find_button_and_click(KEBAP_ICON_TEMPLATE_PATH)
-    if button_coords:
-        click_location(*button_coords)
-        print("Initial button clicked. Waiting for UI animation...")
-        # Wait a moment for any UI animation
-        time.sleep(2)
-    else:
-        print("Failed to find the initial button.")
+    print("Looking for the kebap icon…")
+    coords = find_button_and_click(KEBAP_ICON_TEMPLATE_PATH)
+    if not coords:
+        print("❌ could not find the icon; exiting.")
+        sys.exit(1)
+
+    x, y = coords
+    print(f"✅ found at {x},{y}; clicking…")
+    time.sleep(0.2)
+    click_location(x, y)
+    time.sleep(0.5)
+    print("✔️ done.")

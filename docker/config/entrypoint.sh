@@ -66,12 +66,9 @@ x11vnc -display "${DISPLAY}" \
   -rfbport 5900 -rfbauth /tmp/vnc_pass \
   -listen 0.0.0.0 -xkb -forever -bg
 
-# noVNC in view-only mode
+# noVNC
 if ! lsof -Pi :6080 -sTCP:LISTEN -t >/dev/null 2>&1; then
-  echo "Starting noVNC (view-only) on port 6080…"
-  websockify --web=/usr/share/novnc 6080 localhost:5900 --view-only &
-else
-  echo "noVNC already listening on 6080, skipping."
+  websockify --web=/usr/share/novnc 6080 localhost:5900 &
 fi
 
 # ─── Export env for cron jobs ───────────────────────────────────────────────
