@@ -20,16 +20,9 @@ RUN groupadd -g 1000 "${APP_GROUP}" \
     && passwd   -d "${APP_USER}"
 
 # -----------------------------------------------------------------------------
-# Copy project tree and preserve script permissions
-# -----------------------------------------------------------------------------
-COPY docker/ /backuponepass/
-RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
-    && find /backuponepass -type f -name "*.py" -exec chmod +x {} \;
-
-# -----------------------------------------------------------------------------
 # System packages
 # -----------------------------------------------------------------------------
-RUN apt-get update \
+    RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         jq sudo gedit locales curl gnupg2 lsb-release \
         xdotool oathtool xvfb x11-xserver-utils \
@@ -38,6 +31,13 @@ RUN apt-get update \
         libgbm1 lsof \
         openbox \
     && rm -rf /var/lib/apt/lists/*
+
+# -----------------------------------------------------------------------------
+# Copy project tree and preserve script permissions
+# -----------------------------------------------------------------------------
+COPY docker/ /backuponepass/
+RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
+    && find /backuponepass -type f -name "*.py" -exec chmod +x {} \;
 
 # -----------------------------------------------------------------------------
 # Python packages

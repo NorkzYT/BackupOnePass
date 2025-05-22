@@ -12,7 +12,6 @@ sleep 1
 echo "Checking for unlock-more-easily prompt..."
 python3 /backuponepass/scripts/unlock_more_easily.py
 
-
 # --- Wait for Account Sync Completion ---
 LOG_FILE="/home/$USER/.config/1Password/logs/1Password_rCURRENT.log"
 TIMEOUT=60 # Timeout in seconds to avoid waiting forever
@@ -31,6 +30,9 @@ done
 echo "Account sync completed. Proceeding with export..."
 
 # --- Continue with Export, Locking, etc. ---
+echo "Opening the export menu..."
+bash /backuponepass/scripts/open_export.sh
+
 echo "Exporting 1Password data..."
 bash /backuponepass/scripts/auto-export-data.sh
 

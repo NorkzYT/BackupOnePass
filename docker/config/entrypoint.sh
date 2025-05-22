@@ -62,7 +62,7 @@ sleep 1
 
 # x11vnc (attach to :99)
 x11vnc -storepasswd "${VNC_PASSWORD}" /tmp/vnc_pass
-x11vnc -display "${DISPLAY}" \
+x11vnc -noxdamage -ncache 10 -display "${DISPLAY}" \
   -rfbport 5900 -rfbauth /tmp/vnc_pass \
   -listen 0.0.0.0 -xkb -forever -bg
 

@@ -2,34 +2,10 @@
 
 echo "Starting auto-export-data script..."
 
-echo "Opening the export menu..."
-
-# Simulate pressing the down arrow key
-xdotool key Alt_L
-sleep 2
-
-xdotool key Right
-sleep 0.2
-xdotool key Right
-sleep 0.2
-xdotool key Right
-sleep 0.2
-xdotool key Right
-sleep 0.2
-
-sleep 2
-
-# Click Enter (Clicks Export Button)
-xdotool key Return
-
-# Clicks the account to export.
-xdotool key Return
-xdotool key Return
-
 echo "Waiting for a second before starting the export process..."
 sleep 1
 
-echo "Typing the secret key..."
+echo "Typing the password..."
 xdotool type "$ONEPASSWORD_PASSWORD"
 echo "Navigating through the export dialog..."
 xdotool key Tab
