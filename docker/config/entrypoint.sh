@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# ─── Fix Xauthority file so xauth generate won’t fail ─────────────────────
+export HOME="/home/${APP_USER}"
+mkdir -p "${HOME}"
+touch "${HOME}/.Xauthority"
+chown "${APP_USER}:${APP_USER}" "${HOME}/.Xauthority"
+
 # ─── Make all new files mode 660 by default ─────────────────────────────────
 umask 0007
 
@@ -49,6 +55,14 @@ if ! pgrep -x Xvfb >/dev/null 2>&1; then
   done
 fi
 
+# ─── Remove any stale X lockfile so Xvfb can start cleanly ───────────────
+[ -f "/tmp/.X99-lock" ] && rm -f "/tmp/.X99-lock"
+
+# ─── Generate an Xauthority cookie for the service user ──────────────────
+su - "${APP_USER}" -s /bin/sh -c "\
+ xauth generate ${DISPLAY} . trusted \
+"
+
 # ─── Start a minimal window manager ────────────────────────────────────────
 echo "Starting Openbox window manager…"
 openbox-session &
@@ -62,7 +76,9 @@ sleep 1
 
 # x11vnc (attach to :99)
 x11vnc -storepasswd "${VNC_PASSWORD}" /tmp/vnc_pass
-x11vnc -noxdamage -ncache 10 -display "${DISPLAY}" \
+x11vnc -noxdamage -ncache 10 \
+  -auth "${HOME}/.Xauthority" \
+  -display "${DISPLAY}" \
   -rfbport 5900 -rfbauth /tmp/vnc_pass \
   -listen 0.0.0.0 -xkb -forever -bg
 

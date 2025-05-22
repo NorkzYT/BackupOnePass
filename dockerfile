@@ -22,22 +22,21 @@ RUN groupadd -g 1000 "${APP_GROUP}" \
 # -----------------------------------------------------------------------------
 # System packages
 # -----------------------------------------------------------------------------
-    RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        jq sudo gedit locales curl gnupg2 lsb-release \
-        xdotool oathtool xvfb x11-xserver-utils \
-        python3-opencv scrot python3-pip dbus-x11 \
-        pulseaudio cron x11vnc novnc websockify \
-        libgbm1 lsof \
-        openbox \
-    && rm -rf /var/lib/apt/lists/*
-
-# -----------------------------------------------------------------------------
-# Copy project tree and preserve script permissions
-# -----------------------------------------------------------------------------
-COPY docker/ /backuponepass/
-RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
-    && find /backuponepass -type f -name "*.py" -exec chmod +x {} \;
+RUN apt-get update \
+&& apt-get install -y --no-install-recommends \
+RUN set -eux; \
+    # retry apt-get update up to 3 times in case of mirror sync errors 
+    for i in 1 2 3; do \
+        apt-get update && break || echo "apt‐get update failed, retrying…" && sleep 5; \
+    done; \
+    apt-get install -y --no-install-recommends \
+    jq sudo gedit locales curl gnupg2 lsb-release \
+    xdotool oathtool xvfb x11-xserver-utils \
+    python3-opencv scrot python3-pip dbus-x11 \
+    cron x11vnc novnc websockify \
+    libgbm1 lsof openbox \
+    python3-pyxdg  libasound2 \
+&& rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
 # Python packages
@@ -45,6 +44,24 @@ RUN find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; \
 COPY docker/config/requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+# -----------------------------------------------------------------------------
+# Copy project tree and preserve script permissions
+# -----------------------------------------------------------------------------
+COPY docker/ /backuponepass/
+RUN \
+    find /backuponepass -type f -name "*.sh" -exec chmod +x {} \; && \
+    find /backuponepass -type f -name "*.py" -exec chmod +x {} \; && \
+    ln -s /backuponepass/scripts/py/cli.py /usr/local/bin/backuponepass-cli && \
+    chmod +x /usr/local/bin/backuponepass-cli
+
+# Fix Openbox “missing menu”
+RUN mkdir -p /var/lib/openbox && \
+    printf '%s\n' \
+      '<?xml version="1.0" encoding="UTF-8"?>' \
+      '<!DOCTYPE openbox_menu SYSTEM "http://openbox.org/Openbox1Menu.dtd">' \
+      '<openbox_menu/>' \
+    > /var/lib/openbox/debian-menu.xml
 
 # -----------------------------------------------------------------------------
 # 1Password installation

@@ -1,50 +1,69 @@
-#!/bin/bash
-# -------------------------------------------------------------
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-### Automation Steps (Cron Triggered)
-echo "Starting auto-login..."
-bash /backuponepass/scripts/auto-login-1password.sh
+# ── Configuration ───────────────────────────────────────────────────────────
+readonly BASH_SCRIPTS="/backuponepass/scripts/bash"
+readonly PY_SCRIPTS="/backuponepass/scripts/py"
+readonly DATA_DIR="/backuponepass/data"
+readonly LOG_FILE="$HOME/.config/1Password/logs/1Password_rCURRENT.log"
+readonly SYNC_TIMEOUT="${SYNC_TIMEOUT:-60}" # seconds
 
-sleep 1
-xdotool key Return
-sleep 1
+# ── Helpers ────────────────────────────────────────────────────────────────
+log() { echo "[$(date +'%T')] $*"; }
 
-echo "Checking for unlock-more-easily prompt..."
-python3 /backuponepass/scripts/unlock_more_easily.py
+wait_for_sync() {
+    log "Waiting for account sync (timeout ${SYNC_TIMEOUT}s)…"
+    local elapsed=0
+    until grep -q "synced account" "${LOG_FILE}"; do
+        ((elapsed++))
+        if ((elapsed >= SYNC_TIMEOUT)); then
+            log "ERROR: sync did not complete within ${SYNC_TIMEOUT}s" >&2
+            exit 1
+        fi
+        sleep 1
+    done
+    log "Account sync complete."
+}
 
-# --- Wait for Account Sync Completion ---
-LOG_FILE="/home/$USER/.config/1Password/logs/1Password_rCURRENT.log"
-TIMEOUT=60 # Timeout in seconds to avoid waiting forever
-ELAPSED=0
+# ── Main ──────────────────────────────────────────────────────────────────
+main() {
+    log "=== Cron-triggered backup started ==="
 
-echo "Waiting for account sync to complete..."
-while ! grep -q "synced account" "$LOG_FILE"; do
+    log "1) Auto-login"
+    bash "${BASH_SCRIPTS}/auto-login-1password.sh"
+
+    log "2) Confirm login prompt"
     sleep 1
-    ELAPSED=$((ELAPSED + 1))
-    if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
-        echo "Timeout reached waiting for account sync."
-        exit 1
+    xdotool key Return
+    sleep 1
+
+    log "3) Handle unlock-more-easily prompt"
+    python3 "${PY_SCRIPTS}/unlock_more_easily.py"
+
+    log "4) Wait for account sync"
+    wait_for_sync
+
+    log "5) Open export menu"
+    bash "${BASH_SCRIPTS}/open_export.sh"
+
+    log "6) Auto-export data"
+    bash "${BASH_SCRIPTS}/auto-export-data.sh"
+
+    log "7) Adjust file permissions"
+    find "${DATA_DIR}" -type f -exec chmod 660 {} \; || true
+
+    log "8) Lock 1Password"
+    bash "${BASH_SCRIPTS}/lock-1password.sh"
+
+    if [ -z "${BACKUP_SCHEDULE:-}" ]; then
+        log "No BACKUP_SCHEDULE → quitting 1Password"
+        bash "${BASH_SCRIPTS}/quit-1password.sh"
+    else
+        log "BACKUP_SCHEDULE set → keeping session open"
     fi
-done
 
-echo "Account sync completed. Proceeding with export..."
+    log "=== Cron job completed ==="
+}
 
-# --- Continue with Export, Locking, etc. ---
-echo "Opening the export menu..."
-bash /backuponepass/scripts/open_export.sh
-
-echo "Exporting 1Password data..."
-bash /backuponepass/scripts/auto-export-data.sh
-
-echo "🔧 Adjusting permissions on exported files to 660"
-find /backuponepass/data -type f -exec chmod 660 {} \; || true
-
-echo "Locking 1Password..."
-bash /backuponepass/scripts/lock-1password.sh
-
-if [ -z "$BACKUP_SCHEDULE" ]; then
-    echo "BACKUP_SCHEDULE not defined. Quitting 1Password..."
-    bash /backuponepass/scripts/quit-1password.sh
-else
-    echo "BACKUP_SCHEDULE defined. Keeping 1Password running for reuse."
-fi
+main

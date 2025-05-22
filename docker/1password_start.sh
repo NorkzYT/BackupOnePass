@@ -1,49 +1,70 @@
-#!/bin/bash
-# -------------------------------------------------------------
-### Headless Setup for Immediate Launch
-# Ensure D-Bus is running
-if ! pgrep -x "dbus-daemon" >/dev/null; then
-    echo "Starting D-Bus..."
-    dbus-daemon --system --fork
-fi
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-# Ensure directories and log files for 1Password exist
-mkdir -p /home/$USER/.config/1Password/logs
-touch /home/$USER/.config/1Password/logs/1Password_rCURRENT.log
+# ── Constants ─────────────────────────────────────────────────────────
+readonly DISPLAY_NUM="${DISPLAY:-:99}"
+readonly XVFB_SCREEN="1920x1080x24"
+readonly LOG_DIR="$HOME/.config/1Password/logs"
+readonly LOG_FILE="${LOG_DIR}/1Password_rCURRENT.log"
 
-# Make sure DISPLAY is set (default to :99)
-if [ -z "$DISPLAY" ]; then
-    export DISPLAY=:99
-    echo "DISPLAY environment variable set to $DISPLAY"
-fi
+# ── Helpers ────────────────────────────────────────────────────────────
+ensure_dbus() {
+    if ! pgrep -x dbus-daemon &>/dev/null; then
+        echo "Starting D-Bus…"
+        dbus-daemon --system --fork
+    fi
+}
 
-# Start Xvfb if not already running
-if ! pgrep -x "Xvfb" >/dev/null; then
-    echo "Starting Xvfb on $DISPLAY..."
-    Xvfb $DISPLAY -screen 0 1920x1080x24 &
-    sleep 2
-fi
+ensure_log_dir() {
+    mkdir -p "${LOG_DIR}"
+    touch "${LOG_FILE}"
+}
 
-# -------------------------------------------------------------
-### Launch 1Password Immediately
-echo "Starting 1Password Automation Script..."
+ensure_display() {
+    if [ -z "${DISPLAY:-}" ]; then
+        export DISPLAY="${DISPLAY_NUM}"
+        echo "DISPLAY set to ${DISPLAY}"
+    fi
+}
 
-# Check if 1Password is already running
-if pgrep -x "1password" >/dev/null; then
-    echo "1Password is already running. Skipping launch..."
-else
-    echo "Launching 1Password..."
-    # Launch 1Password without sandboxing in the background
+ensure_xvfb() {
+    if ! pgrep -x Xvfb &>/dev/null; then
+        echo "Starting Xvfb on ${DISPLAY}…"
+        Xvfb "${DISPLAY}" -screen 0 "${XVFB_SCREEN}" &
+        sleep 2
+    fi
+}
+
+launch_1password() {
+    if pgrep -x 1password &>/dev/null; then
+        echo "1Password already running; skipping launch."
+        return
+    fi
+
+    echo "Launching 1Password (no sandbox)…"
     su "$USER" -c '1password --no-sandbox &'
-    sleep 5 # Wait for the process to initialize
+    sleep 5
 
-    # Monitor for the 1Password logo to confirm the GUI is active
-    python3 /backuponepass/scripts/monitor_logo_image.py
-    RESULT=$?
-    if [ $RESULT -ne 0 ]; then
-        echo "1Password Logo detection failed. Exiting."
+    echo "Waiting for logo…"
+    if ! python3 /backuponepass/scripts/py/monitor_logo_image.py; then
+        echo "ERROR: Logo detection failed." >&2
         exit 1
     fi
-fi
+}
 
-echo "1Password launched successfully."
+# ── Main ────────────────────────────────────────────────────────────────
+main() {
+    echo "=== 1Password headless bootstrap ==="
+    ensure_dbus
+    ensure_log_dir
+    ensure_display
+    ensure_xvfb
+
+    echo "Starting automation script…"
+    launch_1password
+
+    echo "✅ 1Password launched successfully."
+}
+
+main
