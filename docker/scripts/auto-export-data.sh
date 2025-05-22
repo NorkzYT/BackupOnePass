@@ -5,20 +5,25 @@ echo "Starting auto-export-data script..."
 echo "Opening the export menu..."
 
 # Simulate pressing the down arrow key
-xdotool key Down
-sleep 1
-xdotool key Down
-sleep 1
-xdotool key Down
-sleep 1
+xdotool key Alt_L
+sleep 2
 
-# Click Enter
+xdotool key Right
+sleep 0.2
+xdotool key Right
+sleep 0.2
+xdotool key Right
+sleep 0.2
+xdotool key Right
+sleep 0.2
+
+sleep 2
+
+# Click Enter (Clicks Export Button)
 xdotool key Return
 
-# Simulate pressing the right arrow key
-xdotool key Right
-
-# Click Enter
+# Clicks the account to export.
+xdotool key Return
 xdotool key Return
 
 echo "Waiting for a second before starting the export process..."

@@ -12,8 +12,6 @@ sleep 1
 echo "Checking for unlock-more-easily prompt..."
 python3 /backuponepass/scripts/unlock_more_easily.py
 
-echo "Clicking the kebab icon..."
-python3 /backuponepass/scripts/click_kebap_icon.py
 
 # --- Wait for Account Sync Completion ---
 LOG_FILE="/home/$USER/.config/1Password/logs/1Password_rCURRENT.log"
