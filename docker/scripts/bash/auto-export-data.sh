@@ -2,13 +2,14 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# ── Configuration ───────────────────────────────────────────────────────────
+# — Configuration —
+readonly BASH_SCRIPTS="/backuponepass/scripts/bash"
 readonly PY_SCRIPTS="/backuponepass/scripts/py"
 readonly SAVE_DIR="/backuponepass/data"
 
-# ── Helpers ─────────────────────────────────────────────────────────────────
+# — Helpers —
 log() { echo "[$(date +'%T')] $*"; }
-sn() { sleep "${1:-1}"; } # default 1s pause
+sn() { sleep "${1:-1}"; }
 
 type_password() {
     log "Typing master password"
@@ -36,16 +37,6 @@ set_save_location() {
     sn
 }
 
-wait_for_export_complete() {
-    log "Waiting for export to finish"
-    if python3 "${PY_SCRIPTS}/monitor_export_complete_image.py"; then
-        log "Export completion detected"
-    else
-        log "ERROR: export completion not detected" >&2
-        exit 1
-    fi
-}
-
 main() {
     log "=== auto-export-data start ==="
     sn
@@ -53,8 +44,29 @@ main() {
     type_password
     navigate_export_dialog
     set_save_location
-    wait_for_export_complete
 
+    # — loop until we see either the success or failure dialog —
+    until python3 "${PY_SCRIPTS}/monitor_export_complete_image.py"; do
+        if python3 "${PY_SCRIPTS}/monitor_export_failed_image.py"; then
+            log "Export failed detected; clicking OK"
+            xdotool key Return # dismiss the failure dialog
+            log "Sleeping 120s before retry"
+            sleep 120
+
+            log "Re-opening export menu"
+            bash "${BASH_SCRIPTS}/open_export.sh"
+            log "Re-initiating export"
+            navigate_export_dialog
+            set_save_location
+            continue
+        fi
+
+        # neither complete nor failed → something went wrong
+        log "ERROR: no export result detected; aborting" >&2
+        exit 1
+    done
+
+    log "Export completion detected"
     log "Confirming and closing dialog"
     xdotool key Return
 
