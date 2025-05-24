@@ -27,6 +27,8 @@ export XDG_RUNTIME_DIR="/tmp/runtime-${USER}"
 # ─── Prepare runtime dir for 1Password IPC ─────────────────────────────────
 mkdir -p "${XDG_RUNTIME_DIR}"
 chmod 700 "${XDG_RUNTIME_DIR}"
+# ensure the IPC dir is owned by the app user, not root
+chown "${APP_USER}:${APP_USER}" "${XDG_RUNTIME_DIR}"
 
 # ─── Ensure the service user exists ────────────────────────────────────────
 groupadd -g 1000 "${APP_USER}" 2>/dev/null || true
