@@ -52,6 +52,9 @@ BackupOnePass supports regular automated backups using Cron. To enable scheduled
   ```
   This example runs backups every Friday at 22:00.
 
+## Contributors
+
+We're happy to welcome [@Breadfishman](https://github.com/Breadfishman)'s contributions to our work this project. They collaborated closely on the project under our shared account.
 
 ## Contributing
 
